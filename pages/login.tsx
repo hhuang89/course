@@ -10,7 +10,24 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import styles from "../styles/Login.module.css";
 import { Form, Input, Button, Checkbox, Radio, Row, Col } from "antd";
 
-//import apiServices from "../lib/services/api-service"
+//A mock server which return the login state
+import { createServer } from "miragejs";
+import { stringify } from "querystring";
+
+createServer({
+  routes() {
+    this.get("/api/login", () => ({
+      code: 0,
+      msg: "success",
+      data: {
+        token: "12xxxdsf",
+        role: "12154545",
+      },
+    }));
+
+    this.passthrough();
+  },
+});
 
 export const StyledButton = styled(Button)`
   &&& {
@@ -19,51 +36,65 @@ export const StyledButton = styled(Button)`
 `;
 
 export interface LoginFormValues {
-  email: String;
+  username: String;
   password: String;
   role: String;
   remember: Boolean;
 }
+
+/*async function loginState(values:LoginFormValues) {
+  
+  await axios.get("http://localhost:3000/api/login", {
+    params: {
+      email: values.username,
+      password: values.password,
+      role: values.role,
+      remember: values.remember
+    },
+    timeout: 1000,
+  }).then(res => {
+    if(res.data.msg === "success") {
+      return "success";
+    }
+  })
+}*/
 
 export default function Login() {
   const [form] = Form.useForm();
   const router = useRouter();
 
   const onFinish = (values: LoginFormValues) => {
-    //const onFinish = (values) => {
-    console.log("Success:", values);
-    if (values.role==="Student") {
-      router.push('/dashboard/student')
-    } else if (values.role==="Manager") {
-      router.push('/dashboard/manager')
-    } else if (values.role==="Teacher") {
-      router.push('/dashboard/teacher')
-    }
+
+    axios
+      .get("http://localhost:3000/api/login", {
+        params: {
+          email: values.username,
+          password: values.password,
+          role: values.role,
+          remember: values.remember,
+        },
+        timeout: 1000,
+      })
+      .then((res) => {
+        const storageInfo = JSON.stringify(res.data);
+        localStorage.setItem('storageInfo',storageInfo);
+
+        if (res.data.msg === "success") {
+          if (values.role === "Student") {
+            router.push("/dashboard/student");
+          } else if (values.role === "Manager") {
+            router.push("/dashboard/manager");
+          } else if (values.role === "Teacher") {
+            router.push("/dashboard/teacher");
+          }
+        }
+      });
+
   };
 
   const onFinishFailed = (errorInfo: any) => {
-    alert("Failed, please check your username and password")
+    alert("Failed, please check your username and password");
   };
-
-  
-  /*const login = async (loginRequest: LoginFormValues) => {
-    const { data } = await apiServices.login(loginRequest);
-    if(!!data) {
-      //Storage.setUserInfo(data);
-
-    }
-  }*/
-
-  /*const handleClick = (e)=>{
-    e.preventDefault()
-    axios.get('http://http://localhost:3000/api/login').then((res)=>{
-      const data = res.data;
-      console.log(res);
-    }).catch((err)=>{
-      console.log(err)
-    })
-    router.push('/dashboard/student')
-  }*/
 
   //form.item你不再需要也不应该用 onChange 来做数据收集同步（你可以使用 Form 的 onValuesChange），但还是可以继续监听 onChange 事件。
 
@@ -84,16 +115,7 @@ export default function Login() {
               initialValue={"Student"}
               rules={[{ required: true }]}
             >
-              <Radio.Group
-                className={styles.radio}
-                buttonStyle="solid"
-                onChange={(event: RadioChangeEvent) => {
-                  const role = event.target.value;
-                  form.resetFields();
-                  form.setFieldsValue({ role });
-                  console.log(form);
-                }}
-              >
+              <Radio.Group className={styles.radio} buttonStyle="solid">
                 <Radio.Button value="Student">Student</Radio.Button>
                 <Radio.Button value="Teacher">Teacher</Radio.Button>
                 <Radio.Button value="Manager">Manager</Radio.Button>
@@ -105,7 +127,7 @@ export default function Login() {
               rules={[
                 { required: true, message: "Please input your username!" },
                 {
-                  pattern: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/,
+                  type: "email",
                   message: "Please fill in correct email",
                 },
               ]}
@@ -113,11 +135,6 @@ export default function Login() {
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
                 placeholder="Username"
-                onChange={(e) => {
-                  const username: String = e.target.value;
-                  form.resetFields();
-                  form.setFieldsValue({ username });
-                }}
               />
             </Form.Item>
 
@@ -126,7 +143,8 @@ export default function Login() {
               rules={[
                 { required: true, message: "Please input your password!" },
                 {
-                  pattern: /^.{4,16}$/,
+                  min: 4,
+                  max: 16,
                   message:
                     "Password must be at least 4 characters and no more than 16 characters",
                 },
