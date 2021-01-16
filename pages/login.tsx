@@ -12,7 +12,6 @@ import { Form, Input, Button, Checkbox, Radio, Row, Col } from "antd";
 
 //A mock server which return the login state
 import { createServer } from "miragejs";
-import { stringify } from "querystring";
 
 createServer({
   routes() {
