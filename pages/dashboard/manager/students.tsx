@@ -18,7 +18,6 @@ const { Header, Sider, Content } = Layout;
 const { Search } = Input;
 
 class SiderDemo extends React.Component {
-
   state = {
     collapsed: false,
   };
@@ -33,10 +32,7 @@ class SiderDemo extends React.Component {
     });
   };
 
-  quit = () => {
-      
-      
-  }
+  quit = () => {};
 
   render() {
     return (
@@ -69,14 +65,13 @@ class SiderDemo extends React.Component {
                 onClick: this.toggle,
               }
             )}
-            
-            <LogoutOutlined 
+
+            <Link href="/login">
+              <LogoutOutlined
                 className={styles.trigger}
-                style={{float: "right"}}
-            >
-                
-            </LogoutOutlined>
-            
+                style={{ float: "right" }}
+              />
+            </Link>
           </Header>
           <Content
             className={styles.site_layout_content}
