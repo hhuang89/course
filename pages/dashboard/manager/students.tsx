@@ -17,7 +17,7 @@ import StudentTable from "../../../components/studentTable";
 const { Header, Sider, Content } = Layout;
 const { Search } = Input;
 
-class SiderDemo extends React.Component {
+class StudentDashboard extends React.Component {
   state = {
     collapsed: false,
   };
@@ -90,4 +90,4 @@ class SiderDemo extends React.Component {
   }
 }
 
-export default SiderDemo;
+export default StudentDashboard;

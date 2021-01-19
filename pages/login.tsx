@@ -10,28 +10,12 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import styles from "../styles/Login.module.css";
 import { Form, Input, Button, Checkbox, Radio, Row, Col } from "antd";
 
-//A mock server which return the login state
-import { createServer } from "miragejs";
 
-createServer({
-  routes() {
-    this.get("/api/login", () => ({
-      code: 0,
-      msg: "success",
-      data: {
-        token: "12xxxdsf",
-        role: "12154545",
-      },
-    }));
 
-    this.passthrough();
-  },
-});
-
-export const StyledButton = styled(Button)`
-  &&& {
+const StyledButton = styled(Button)`
+ 
     width: 100%;
-  }
+  
 `;
 
 export interface LoginFormValues {
