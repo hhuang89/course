@@ -30,3 +30,13 @@
 .site_layout_content {
   background: #fff;
 }
+
+.search_bar {
+  float: right
+}
+
+.add_button {
+  background: #1890ff;
+  color: #fff;
+  margin-bottom: 10px;
+}

@@ -2,77 +2,39 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
-
-import styled from "styled-components";
 import "antd/dist/antd.css";
-import { RadioChangeEvent } from "antd/lib/radio";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import styles from "../styles/Login.module.css";
-import { Form, Input, Button, Checkbox, Radio, Row, Col } from "antd";
+import { Form, Input, Button, Checkbox, Radio, Row, Col, message } from "antd";
 
-
-
-const StyledButton = styled(Button)`
- 
-    width: 100%;
-  
-`;
+import { AES } from "crypto-js";
 
 export interface LoginFormValues {
-  username: String;
-  password: String;
-  role: String;
+  username: string;
+  password: string;
+  role: string;
   remember: Boolean;
 }
-
-/*async function loginState(values:LoginFormValues) {
-  
-  await axios.get("http://localhost:3000/api/login", {
-    params: {
-      email: values.username,
-      password: values.password,
-      role: values.role,
-      remember: values.remember
-    },
-    timeout: 1000,
-  }).then(res => {
-    if(res.data.msg === "success") {
-      return "success";
-    }
-  })
-}*/
 
 export default function Login() {
   const [form] = Form.useForm();
   const router = useRouter();
 
-  const onFinish = (values: LoginFormValues) => {
-
-    axios
-      .get("http://localhost:3000/api/login", {
-        params: {
-          email: values.username,
-          password: values.password,
-          role: values.role,
-          remember: values.remember,
-        },
-        timeout: 1000,
+  const onFinish = async (values: LoginFormValues) => {
+    console.log(values)
+    await axios
+      .post("https://cms.chtoma.com/api/login", {
+        email: values.username,
+        password: AES.encrypt(values.password, "cms").toString(),
+        role: values.role,
       })
-      .then((res) => {
-        const storageInfo = JSON.stringify(res.data);
-        localStorage.setItem('storageInfo',storageInfo);
-
-        if (res.data.msg === "success") {
-          if (values.role === "Student") {
-            router.push("/dashboard/student");
-          } else if (values.role === "Manager") {
-            router.push("/dashboard/manager");
-          } else if (values.role === "Teacher") {
-            router.push("/dashboard/teacher");
-          }
+      .then((result) => {
+        localStorage.setItem("token", JSON.stringify(result.data.data.token));
+        if (result.data.code >= 200 && result.data.code < 300) {
+          router.push(`/dashboard/${result.data.data.role}`);
         }
-      });
-
+      })
+      .catch(() => message.error("invalid username or password"));
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -87,7 +49,7 @@ export default function Login() {
       <Row justify="center">
         <Col md={8} sm={24}>
           <Form
-            name="basic"
+            name="loginForm"
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
@@ -95,13 +57,13 @@ export default function Login() {
           >
             <Form.Item
               name="role"
-              initialValue={"Student"}
+              initialValue={"student"}
               rules={[{ required: true }]}
             >
-              <Radio.Group className={styles.radio} buttonStyle="solid">
-                <Radio.Button value="Student">Student</Radio.Button>
-                <Radio.Button value="Teacher">Teacher</Radio.Button>
-                <Radio.Button value="Manager">Manager</Radio.Button>
+              <Radio.Group buttonStyle="solid">
+                <Radio.Button value="student">Student</Radio.Button>
+                <Radio.Button value="teacher">Teacher</Radio.Button>
+                <Radio.Button value="manager">Manager</Radio.Button>
               </Radio.Group>
             </Form.Item>
 
@@ -145,9 +107,9 @@ export default function Login() {
             </Form.Item>
 
             <Form.Item>
-              <StyledButton type="primary" htmlType="submit">
+              <Button className={styles.submit} type="primary" htmlType="submit">
                 Sign in
-              </StyledButton>
+              </Button>
             </Form.Item>
           </Form>
 
