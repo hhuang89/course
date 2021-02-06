@@ -8,6 +8,7 @@ import styles from "../styles/Login.module.css";
 import { Form, Input, Button, Checkbox, Radio, Row, Col, message } from "antd";
 
 import { AES } from "crypto-js";
+import { postLoginForm } from "../lib/services/api-services";
 
 export interface LoginFormValues {
   username: string;
@@ -21,20 +22,25 @@ export default function Login() {
   const router = useRouter();
 
   const onFinish = async (values: LoginFormValues) => {
-    console.log(values)
-    await axios
-      .post("https://cms.chtoma.com/api/login", {
-        email: values.username,
-        password: AES.encrypt(values.password, "cms").toString(),
-        role: values.role,
-      })
-      .then((result) => {
-        localStorage.setItem("token", JSON.stringify(result.data.data.token));
-        if (result.data.code >= 200 && result.data.code < 300) {
-          router.push(`/dashboard/${result.data.data.role}`);
-        }
-      })
-      .catch(() => message.error("invalid username or password"));
+    await postLoginForm(values).then((res) => {
+      localStorage.setItem("token", JSON.stringify(res.data.token));
+      if (res.code >= 200 && res.code < 300) {
+        router.push(`/dashboard/${res.data.role}`);
+      }
+    });
+    // await axios
+    //   .post("https://cms.chtoma.com/api/login", {
+    //     email: values.username,
+    //     password: AES.encrypt(values.password, "cms").toString(),
+    //     role: values.role,
+    //   })
+    //   .then((result) => {
+    //     localStorage.setItem("token", JSON.stringify(result.data.data.token));
+    //     if (result.data.code >= 200 && result.data.code < 300) {
+    //       router.push(`/dashboard/${result.data.data.role}`);
+    //     }
+    //   })
+    //   .catch(() => message.error("invalid username or password"));
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -107,7 +113,11 @@ export default function Login() {
             </Form.Item>
 
             <Form.Item>
-              <Button className={styles.submit} type="primary" htmlType="submit">
+              <Button
+                className={styles.submit}
+                type="primary"
+                htmlType="submit"
+              >
                 Sign in
               </Button>
             </Form.Item>

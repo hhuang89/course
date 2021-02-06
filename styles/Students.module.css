@@ -11,12 +11,17 @@
 }
 
 .logo {
-  height: 32px;
-  background: rgba(177, 172, 172, 0.3);
-  margin: 16px;
-  text-align: center;
-  font-size: 18px;
+  height: 64px;
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
   color: #fff;
+  letter-spacing: 5px;
+  text-shadow: 5px 1px 5px;
+  transform: rotateX(45deg);
+  font-family: monospace;
 }
 
 .site_layout {
@@ -32,11 +37,36 @@
 }
 
 .search_bar {
-  float: right
+  float: right;
 }
 
 .add_button {
   background: #1890ff;
   color: #fff;
   margin-bottom: 10px;
+}
+
+.pagination {
+  float: right;
+}
+
+.site_card_wrapper {
+  padding: 30px;
+  background: #fff;
+}
+
+.FlexContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.h2 {
+  color: #7356f1;
+}
+
+.tab {
+  width: "100%";
+  margin-left: 30px;
 }

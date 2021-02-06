@@ -16,17 +16,21 @@ import {
   Modal,
   Form,
   Select,
+  Popconfirm,
 } from "antd";
+
+import styles from "../../../../styles/Students.module.css";
+import { ColumnType } from "antd/lib/table";
 import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  UserOutlined,
-  SelectOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
-import styles from "../../../styles/Students.module.css";
-import { ColumnsType, ColumnType } from "antd/lib/table";
-import { getCountry, getStudent} from "../../../lib/services/api-services"
+  getCountry,
+  getStudent,
+  postAddStudent,
+  searchStudent,
+  deleteStudent,
+  updateStudent,
+} from "../../../../lib/services/api-services";
+import { debounce } from "lodash";
+import DetailLayout from "../../../../components/layout";
 
 const { Header, Sider, Content } = Layout;
 const { Search } = Input;
@@ -35,6 +39,7 @@ const { Option } = Select;
 const MyPagination = ({ total, onChange, current }) => {
   return (
     <Pagination
+      className={styles.pagination}
       onChange={onChange}
       total={total}
       current={current}
@@ -44,40 +49,38 @@ const MyPagination = ({ total, onChange, current }) => {
 };
 
 export default function StudentDashboard() {
-  const [collapsed, setCollapsed] = useState(false);
-
-  const toggle = () => {
-    setCollapsed(!collapsed);
-  };
-
-  const onSearch = (value) => {
-    axios
-      .get("https://cms.chtoma.com/api/students", {
-        params: {
-          query: value,
-          page: paginator,
-          limit: 10,
-        },
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      })
-      .then((result) => {
+  const searchQuery = (query) => {
+    searchStudent({
+      query: query,
+      page: paginator,
+      limit: 10,
+    })
+      .then((res) => {
         const {
           data: { students, total },
-        } = result.data;
+        } = res;
         setStudents(students);
         setTotal(total);
       })
-      .catch((error) => {
-        message.error(error)
+      .catch(() => {
+        message.error("error");
       });
   };
+
+  const onSearch = (value) => {
+    searchQuery(value);
+  };
+
+  const debounceQuery = useCallback(
+    debounce((nextValue) => searchQuery(nextValue), 1000),
+    []
+  );
 
   //Modal
   const [isModalVisible, setIsModalVisible] = useState(false);
   const addOnclick = () => {
     setIsModalVisible(true);
+    setEditingStudent(null);
   };
   const handleOk = () => {
     form.submit;
@@ -86,63 +89,80 @@ export default function StudentDashboard() {
   const handleCancel = () => {
     form.resetFields();
     setIsModalVisible(false);
+    setEditingStudent(null);
   };
 
   //form in modal
   const layout = {
-    labelCol: {span: 8},
+    labelCol: { span: 8 },
     wrapperCol: {
-      span: 16
-    }
+      span: 16,
+    },
   };
   const [form] = Form.useForm();
   const [countries, setCountriesInForm] = useState([]);
-  const onFinish = useCallback((values) => {
-    let email = ""
-    if(values.email !== undefined) {
-      email = values.email
-    }
-    axios
-      .post("https://cms.chtoma.com/api/students", {
-        name: values.name,
-        country: values.area,
-        email: email,
-        type: values.type
-      }, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        }
-      })
-      .then((result) => {
-        message.success("add successfully")
-      })
-      .catch(()=>message.error("invalid username or password"));
-  },[]);
+  // const onFinish = useCallback((values) => {
+  //   console.log(editingStudent)
+  //   if (editingStudent) {
+  //     console.log(values);
+  //   } else {
+  //     postAddStudent(values)
+  //       .then((res) => {
+  //         const { data } = res;
+  //         if (data) {
+  //           const updatedData = [...students, data];
+  //           setStudents(updatedData);
+  //           setTotal(total + 1);
+  //           message.success("add successfully");
+  //         }
+  //       })
+  //       .catch(() => {
+  //         message.error("Unsuccessfully, Please try again");
+  //       });
+  //   }
+  // }, []);
 
-  //logout
-  const router = useRouter();
-  const handleLogout = () => {
-    axios
-    .post("https://cms.chtoma.com/api/logout",{}, {
-      headers: {
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-      }
-    })
-    .then((result) => {
-      message.success("successfully")
-      router.push("/login")
-    })
-    .catch(()=>message.error("error"));
-    //localStorage.removeItem("token")
-    
-  }
+  const onFinish = (values) => {
+    if (!!editingStudent) {
+      console.log(editingStudent.id);
+      updateStudent({id: editingStudent.id, ...values})
+      .then((res)=>{
+        console.log(res);
+        const student = res.data;
+        const index = students.findIndex((item) => item.id === student.id);
+        let updatedStudentList = students;
+        updatedStudentList[index] = student;
+        setStudents([...updatedStudentList]);
+
+        message.success("updated")
+        setIsModalVisible(false);
+      })
+      .catch(()=>{message.error("unsuccessfully update")})
+    } else {
+      postAddStudent(values)
+        .then((res) => {
+          const { data } = res;
+          if (data) {
+            const updatedData = [...students, data];
+            setStudents(updatedData);
+            setTotal(total + 1);
+            message.success("add successfully");
+            setIsModalVisible(false);
+          }
+        })
+        .catch(() => {
+          message.error("Unsuccessfully, Please try again");
+        });
+    }
+  };
 
   //table
   const [students, setStudents] = useState([]);
   const [paginator, setPaginator] = useState(1);
   const [total, setTotal] = useState(0);
   const [country, setCountries] = useState([]);
-  const table_countries = [];
+
+  const [editingStudent, setEditingStudent] = useState(null);
 
   const columns: ColumnType<any>[] = [
     {
@@ -162,7 +182,11 @@ export default function StudentDashboard() {
 
         return preCode > nextCode ? 1 : preCode === nextCode ? 0 : -1;
       },
-      render: (text) => <a>{text}</a>,
+      render: (value, record) => (
+        <Link href={`/dashboard/manager/students/${record.id}`}>
+          {record.name}
+        </Link>
+      ),
     },
     {
       title: "Area",
@@ -213,102 +237,98 @@ export default function StudentDashboard() {
     {
       title: "Action",
       key: "action",
-      render: () => (
+      render: (value, record) => (
         <Space size="middle">
-          <a>Edit</a>
-          <a>Delete</a>
+          <a
+            onClick={() => {
+              setEditingStudent(record);
+              setIsModalVisible(true);
+            }}
+          >
+            Edit
+          </a>
+
+          <Popconfirm
+            title="Are you sure to delete this task?"
+            placement="topRight"
+            onConfirm={() => {
+              deleteStudent(record.id)
+                .then((res) => {
+                  const { data } = res;
+                  if (data) {
+                    const index = students.findIndex(
+                      (student) => student.id === record.id
+                    );
+                    const updatedData = [...students];
+                    updatedData.splice(index, 1);
+                    setStudents(updatedData);
+                    setTotal(total - 1);
+                  }
+                  message.success("Delete Successfully");
+                })
+                .catch(() => {
+                  message.error("Unsuccessfully, Please try again");
+                });
+            }}
+            okText="Yes"
+            cancelText="No"
+          >
+            <a>Delete</a>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
+  let set = new Set();
+  const table_countries = [];
   useEffect(() => {
-    const students = getStudent("https://cms.chtoma.com/api/students", {page: paginator, limit: 10})
-    console.log(students)
-    // setStudents(students);
-    // setTotal(total);
-    // setCountries(country);
+    getStudent({ page: paginator, limit: 10 })
+      .then((res) => {
+        const {
+          data: { students, total },
+        } = res;
+        setStudents(students);
+        students.forEach((student) => {
+          set.add(student.country);
+        });
+        const iters = set.entries();
+        for (const iter of iters) {
+          table_countries.push({
+            text: iter[0],
+            value: iter[1],
+          });
+        }
 
-    // axios
-    //   .get("https://cms.chtoma.com/api/students", {
-    //     params: {
-    //       page: paginator,
-    //       limit: 10,
-    //     },
-    //     headers: {
-    //       Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-    //     },
-    //   })
-    //   .then((result) => {
-    //     const {
-    //       data: { paginator, students, total },
-    //     } = result.data;
-    //     setStudents(students);
-
-    //     students.forEach((student) => {
-    //       student.country;
-    //       table_countries.push({
-    //         text: student.country,
-    //         value: student.country,
-    //       });
-    //     });
-    //     setCountries(table_countries);
-    //     setTotal(total);
-    //   })
-    //   .catch(() => {
-    //     message.error("error");
-    //   });
-
+        setCountries(table_countries);
+        setTotal(total);
+      })
+      .then(() => {
+        message.error("error");
+      });
   }, [paginator]);
 
+  const form_countries = [];
   useEffect(() => {
-    const form_countries = getCountry("https://cms.chtoma.com/api/countries", {});
-    // axios.get("https://cms.chtoma.com/api/countries").then((result) => {
-    //   const { data } = result.data;
-    //   data.map((data) => {
-    //     form_countries.push(data.en);
-    //   });
-    //   setCountriesInForm(form_countries);
-    // });
-    
-    setCountriesInForm(form_countries)
+    getCountry({})
+      .then((res) => {
+        res.data.map((data) => {
+          form_countries.push(data.en);
+          setCountriesInForm(form_countries);
+        });
+      })
+      .catch(() => {
+        message.error("error");
+      });
   }, []);
 
+  useEffect(() => {
+    form.resetFields();
+  });
+
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
-        <div className={styles.logo}>CMS</div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1" icon={<UserOutlined />}>
-            Student List
-          </Menu.Item>
-          <Menu.Item key="2" icon={<SelectOutlined />}>
-            Select Student
-          </Menu.Item>
-        </Menu>
-      </Sider>
-
-      <Layout className={styles.site_layout}>
-        <Header
-          className={styles.site_layout_background}
-          style={{ padding: 0 }}
-        >
-          {React.createElement(
-            collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-            {
-              className: styles.trigger,
-              onClick: toggle,
-            }
-          )}
-
-          {/* <Link href="/login"> */}
-            <LogoutOutlined
-              className={styles.trigger}
-              style={{ float: "right" }}
-              onClick={handleLogout}
-            />
-          {/* </Link> */}
-        </Header>
+    <DetailLayout>
+      <div className={styles.FlexContainer}>
         <Content
           className={styles.site_layout_content}
           style={{
@@ -322,12 +342,12 @@ export default function StudentDashboard() {
           </Button>
 
           <Modal
-            title="Add Student"
+            title={!!editingStudent ? "Edit Student" : "Add Student"}
             visible={isModalVisible}
             centered
             onOk={form.submit}
             onCancel={handleCancel}
-            okText={"Add"}
+            okText={!!editingStudent ? "Update" : "Add"}
           >
             <Form
               name="Add/Update"
@@ -335,6 +355,12 @@ export default function StudentDashboard() {
               onFinish={onFinish}
               form={form}
               {...layout}
+              initialValues={{
+                name: editingStudent?.name,
+                email: editingStudent?.email,
+                area: editingStudent?.country,
+                type: editingStudent?.type.id,
+              }}
             >
               <Form.Item
                 label="Name"
@@ -352,6 +378,7 @@ export default function StudentDashboard() {
                 rules={[
                   {
                     type: "email",
+                    required: true,
                     message: "Please fill in correct email",
                   },
                 ]}
@@ -393,7 +420,6 @@ export default function StudentDashboard() {
                   <Option value={2}>Developer</Option>
                 </Select>
               </Form.Item>
-             
             </Form>
           </Modal>
 
@@ -402,13 +428,13 @@ export default function StudentDashboard() {
             placeholder="Search by name"
             style={{ width: 200 }}
             onSearch={onSearch}
+            onChange={(event) => debounceQuery(event.target.value)}
           />
           <Table
             columns={columns}
             dataSource={students}
             pagination={false}
             rowKey="id"
-            // filteredValue={table_countries}
           />
           <MyPagination
             total={total}
@@ -416,7 +442,7 @@ export default function StudentDashboard() {
             onChange={setPaginator}
           />
         </Content>
-      </Layout>
-    </Layout>
+      </div>
+    </DetailLayout>
   );
 }
