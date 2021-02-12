@@ -17,6 +17,7 @@ import {
   Form,
   Select,
   Popconfirm,
+  Breadcrumb,
 } from "antd";
 
 import styles from "../../../../styles/Students.module.css";
@@ -31,7 +32,7 @@ import {
 } from "../../../../lib/services/api-services";
 import { debounce } from "lodash";
 import DetailLayout from "../../../../components/layout";
-
+import { res } from "../../../../lib/constant/constants"
 const { Header, Sider, Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
@@ -48,6 +49,7 @@ const MyPagination = ({ total, onChange, current }) => {
   );
 };
 
+
 export default function StudentDashboard() {
   const searchQuery = (query) => {
     searchStudent({
@@ -55,7 +57,7 @@ export default function StudentDashboard() {
       page: paginator,
       limit: 10,
     })
-      .then((res) => {
+      .then((res: res) => {
         const {
           data: { students, total },
         } = res;
@@ -125,22 +127,24 @@ export default function StudentDashboard() {
   const onFinish = (values) => {
     if (!!editingStudent) {
       console.log(editingStudent.id);
-      updateStudent({id: editingStudent.id, ...values})
-      .then((res)=>{
-        console.log(res);
-        const student = res.data;
-        const index = students.findIndex((item) => item.id === student.id);
-        let updatedStudentList = students;
-        updatedStudentList[index] = student;
-        setStudents([...updatedStudentList]);
+      updateStudent({ id: editingStudent.id, ...values })
+        .then((res:res) => {
 
-        message.success("updated")
-        setIsModalVisible(false);
-      })
-      .catch(()=>{message.error("unsuccessfully update")})
+          const student = res.data;
+          const index = students.findIndex((item) => item.id === student.id);
+          let updatedStudentList = students;
+          updatedStudentList[index] = student;
+          setStudents([...updatedStudentList]);
+
+          message.success("updated");
+          setIsModalVisible(false);
+        })
+        .catch(() => {
+          message.error("unsuccessfully update");
+        });
     } else {
       postAddStudent(values)
-        .then((res) => {
+        .then((res:res) => {
           const { data } = res;
           if (data) {
             const updatedData = [...students, data];
@@ -253,7 +257,7 @@ export default function StudentDashboard() {
             placement="topRight"
             onConfirm={() => {
               deleteStudent(record.id)
-                .then((res) => {
+                .then((res:res) => {
                   const { data } = res;
                   if (data) {
                     const index = students.findIndex(
@@ -280,11 +284,11 @@ export default function StudentDashboard() {
     },
   ];
 
-  let set = new Set();
+  let set = new Set<string>();
   const table_countries = [];
   useEffect(() => {
     getStudent({ page: paginator, limit: 10 })
-      .then((res) => {
+      .then((res:res) => {
         const {
           data: { students, total },
         } = res;
@@ -303,22 +307,23 @@ export default function StudentDashboard() {
         setCountries(table_countries);
         setTotal(total);
       })
-      .then(() => {
-        message.error("error");
+      .catch((err) => {
+        console.log(err);
+        message.error("cannot catch student");
       });
   }, [paginator]);
 
   const form_countries = [];
   useEffect(() => {
     getCountry({})
-      .then((res) => {
+      .then((res:res) => {
         res.data.map((data) => {
           form_countries.push(data.en);
           setCountriesInForm(form_countries);
         });
       })
       .catch(() => {
-        message.error("error");
+        message.error("cannot catch countries");
       });
   }, []);
 
@@ -328,6 +333,17 @@ export default function StudentDashboard() {
 
   return (
     <DetailLayout>
+      <Breadcrumb>
+        <Breadcrumb.Item>CMS MANAGER SYSTEM</Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <a href="">Application Center</a>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <a href="">Application List</a>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>An Application</Breadcrumb.Item>
+      </Breadcrumb>
+      
       <div className={styles.FlexContainer}>
         <Content
           className={styles.site_layout_content}

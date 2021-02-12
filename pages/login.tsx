@@ -9,6 +9,7 @@ import { Form, Input, Button, Checkbox, Radio, Row, Col, message } from "antd";
 
 import { AES } from "crypto-js";
 import { postLoginForm } from "../lib/services/api-services";
+import { res } from "../lib/constant/constants"
 
 export interface LoginFormValues {
   username: string;
@@ -22,8 +23,9 @@ export default function Login() {
   const router = useRouter();
 
   const onFinish = async (values: LoginFormValues) => {
-    await postLoginForm(values).then((res) => {
-      localStorage.setItem("token", JSON.stringify(res.data.token));
+    await postLoginForm(values).then((res: res) => {
+      localStorage.setItem("auth", JSON.stringify(res.data));
+      //localStorage.setItem("token", JSON.stringify(res.data.token));
       if (res.code >= 200 && res.code < 300) {
         router.push(`/dashboard/${res.data.role}`);
       }

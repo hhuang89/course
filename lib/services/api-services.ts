@@ -23,7 +23,7 @@ axiosInstance.interceptors.request.use((config) => {
       ...config,
       headers: {
         ...config.headers,
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("auth")).token}`,
       },
     };
   }

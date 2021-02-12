@@ -8,7 +8,7 @@ import styles from "../../../../styles/Students.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { getStudentById } from "../../../../lib/services/api-services";
-
+import { res } from "../../../../lib/constant/constants"
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.params;
   return {
@@ -54,6 +54,10 @@ interface Type {
   name: string;
 }
 
+interface Response {
+  data: [];
+}
+
 const tagColor: string[] = [
   "magenta",
   "volcano",
@@ -75,8 +79,7 @@ export default function Page({ id }) {
   const [about, setAbout] = useState([]);
   useEffect(() => {
     getStudentById(id)
-      .then((res) => {
-        console.log(res);
+      .then((res: res) => {
 
         const student = res.data;
         const courses = student.courses;
