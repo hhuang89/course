@@ -10,8 +10,6 @@ import {
     MessageOutlined
   } from '@ant-design/icons';
   import React from 'react';
-  import { Role } from '../model/Role'
-  import { Role as Roles} from '../model/Role'
   /**
    * router path
    */

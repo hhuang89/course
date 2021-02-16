@@ -13,18 +13,23 @@ import styles from "../styles/Students.module.css";
 import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getUserRole } from "../lib/services/storage";
+import generateCalendar from "antd/lib/calendar/generateCalendar";
 const { Header, Sider } = Layout;
 
 export const generateKey = (data: SideNav, index: number): string => {
   return `${data.label}_${index}`;
 };
 
+export const generatePath = (data: SideNav): string => {
+  return data.path[0];
+};
 
 export const getActivePath = () => {
   const router = useRouter();
   //can also achieved by using filter
   const activePath = router.pathname.split("/").reduce((acc, cur) => {
-    if (cur === "[id]") { // be really careful here, only detail page has [id]
+    if (cur === "[id]") {
+      // be really careful here, only detail page has [id]
       return acc;
     } else {
       return acc + (acc === "/" ? "" : "/") + cur;
@@ -64,21 +69,59 @@ export const compare = (data: SideNav[], parent: string) => {
   });
 };
 
-export const curryingCompare = (data: SideNav[], parent: string) => {
-  
-}
+//fn generate path or key (input type) => output type
+export const curryingGeneratePath = (
+  fn: (data: SideNav, index: number) => string
+) =>
+  function GeneratePath(data: SideNav[], parent = ""): string[][] {
+    const Path = data.map((item, index) => {
+      let path = fn(item, index);
 
+      if (item.subNav && !!item.subNav.length) {
+        return GeneratePath(item.subNav, path).map((item: string[]) => item[0]);
+      } else {
+        return [path];
+      }
+    });
+    return Path;
+  };
 
+export const curryingGenerateKey = (
+  fn: (data: SideNav, index: number) => string
+) =>
+  function GenerateKey(data: SideNav[], parent = ""): string[][] {
+    const Key = data.map((item, index) => {
+      let key = fn(item, index);
+      if (parent) {
+        key = [parent, key].join("/");
+      }
 
+      if (item.subNav && !!item.subNav.length) {
+        return GenerateKey(item.subNav, key).map((item: string[]) =>
+          item.join("/")
+        );
+      } else {
+        return [key];
+      }
+    });
+    return Key;
+  };
 
 const getDefaultKeys = (data: SideNav[]) => {
-  const activePath = getActivePath();
-  compare(data, ""); //Path, Key
-  const path = Array.from(Path);
-  const key = Array.from(Key);
+  const activePath = getActivePath();// /dashboard/manager/page
+  const userType = "manager";
+  const getPath = curryingGeneratePath(generatePath);
+  const path = getPath(data)
+    .reduce((acc, cur) => [...acc, ...cur], [])//convert [][] to []
+    .map((item) =>
+      ["/dashboard", userType, item].filter((item) => !!item).join("/")
+    );
   const index = path.findIndex((item) => {
     return item === activePath;
   });
+  const getKey = curryingGenerateKey(generateKey);
+  const key = getKey(data).reduce((acc, cur) => [...acc, ...cur], []);
+
   if (key[index]) {
     const defaultSelectedKeys = [key[index].split("/").pop()];
     const defaultOpenKeys = key[index].split("/").slice(0, -1);
