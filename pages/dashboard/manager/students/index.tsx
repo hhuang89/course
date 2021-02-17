@@ -6,7 +6,6 @@ import { formatDistance, endOfToday, format, endOfDay } from "date-fns";
 import "antd/dist/antd.css";
 import {
   Layout,
-  Menu,
   Input,
   Table,
   Space,
@@ -17,7 +16,6 @@ import {
   Form,
   Select,
   Popconfirm,
-  Breadcrumb,
 } from "antd";
 
 import styles from "../../../../styles/Students.module.css";
@@ -103,26 +101,6 @@ export default function StudentDashboard() {
   };
   const [form] = Form.useForm();
   const [countries, setCountriesInForm] = useState([]);
-  // const onFinish = useCallback((values) => {
-  //   console.log(editingStudent)
-  //   if (editingStudent) {
-  //     console.log(values);
-  //   } else {
-  //     postAddStudent(values)
-  //       .then((res) => {
-  //         const { data } = res;
-  //         if (data) {
-  //           const updatedData = [...students, data];
-  //           setStudents(updatedData);
-  //           setTotal(total + 1);
-  //           message.success("add successfully");
-  //         }
-  //       })
-  //       .catch(() => {
-  //         message.error("Unsuccessfully, Please try again");
-  //       });
-  //   }
-  // }, []);
 
   const onFinish = (values) => {
     if (!!editingStudent) {
@@ -296,7 +274,7 @@ export default function StudentDashboard() {
         students.forEach((student) => {
           set.add(student.country);
         });
-        const iters = set.entries();
+        const iters: any = set.entries();
         for (const iter of iters) {
           table_countries.push({
             text: iter[0],
@@ -333,17 +311,6 @@ export default function StudentDashboard() {
 
   return (
     <DetailLayout>
-      <Breadcrumb>
-        <Breadcrumb.Item>CMS MANAGER SYSTEM</Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <a href="">Application Center</a>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <a href="">Application List</a>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>An Application</Breadcrumb.Item>
-      </Breadcrumb>
-      
       <div className={styles.FlexContainer}>
         <Content
           className={styles.site_layout_content}

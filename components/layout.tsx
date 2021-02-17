@@ -13,7 +13,7 @@ import styles from "../styles/Students.module.css";
 import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getUserRole } from "../lib/services/storage";
-import generateCalendar from "antd/lib/calendar/generateCalendar";
+import BreadCrumb from "./breadcrumb";
 const { Header, Sider } = Layout;
 
 export const generateKey = (data: SideNav, index: number): string => {
@@ -39,36 +39,6 @@ export const getActivePath = () => {
   return activePath;
 };
 
-const Path = new Set<string>();
-const Key = new Set<string>();
-//柯里化
-export const compare = (data: SideNav[], parent: string) => {
-  const userType = "manager";
-
-  data.map((item, index) => {
-    let key = generateKey(item, index);
-    if (item.subNav && !!item.subNav.length) {
-      compare(item.subNav, item.path.join("/"));
-    } else {
-      //console.log("key: inside", key);
-      const some = ["/dashboard", userType, parent, ...item.path]
-        .filter((item) => !!item)
-        .join("/");
-      Path.add(some);
-      if (key.includes("Student")) {
-        key = "Student_1/" + key;
-      }
-      if (key.includes("Teacher")) {
-        key = "Teacher_2/" + key;
-      }
-      if (key.includes("Course")) {
-        key = "Course_3/" + key;
-      }
-      Key.add(key);
-    }
-  });
-};
-
 //fn generate path or key (input type) => output type
 export const curryingGeneratePath = (
   fn: (data: SideNav, index: number) => string
@@ -76,7 +46,6 @@ export const curryingGeneratePath = (
   function GeneratePath(data: SideNav[], parent = ""): string[][] {
     const Path = data.map((item, index) => {
       let path = fn(item, index);
-
       if (item.subNav && !!item.subNav.length) {
         return GeneratePath(item.subNav, path).map((item: string[]) => item[0]);
       } else {
@@ -107,12 +76,12 @@ export const curryingGenerateKey = (
     return Key;
   };
 
-const getDefaultKeys = (data: SideNav[]) => {
-  const activePath = getActivePath();// /dashboard/manager/page
+export const getDefaultKeys = (data: SideNav[]) => {
+  const activePath = getActivePath(); // /dashboard/manager/page
   const userType = "manager";
   const getPath = curryingGeneratePath(generatePath);
   const path = getPath(data)
-    .reduce((acc, cur) => [...acc, ...cur], [])//convert [][] to []
+    .reduce((acc, cur) => [...acc, ...cur], []) //convert [][] to []
     .map((item) =>
       ["/dashboard", userType, item].filter((item) => !!item).join("/")
     );
@@ -170,7 +139,6 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
   // const SideNav = routes.get(getUserRole())
   const sideNav = routes.get("manager");
   const menuItem = renderMenuItems(sideNav);
-  //const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNav);
   const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -233,6 +201,7 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
             onClick={handleLogout}
           />
         </Header>
+        <BreadCrumb />
         {children}
       </Layout>
     </Layout>
