@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getDefaultKeys } from "./layout";
+import { getUserRole } from "../lib/services/storage"
 
 const essential = () => {
   const userRole = "manager";
@@ -14,8 +15,6 @@ const essential = () => {
   return {
     userRole,
     sideNav,
-    defaultOpenKeys,
-    defaultSelectedKeys,
     openKey,
     selectedKey,
   };
@@ -32,7 +31,6 @@ const isDetailPath = (): boolean => {
 };
 
 const GeneratePath = (data: SideNav[], selectedKey: string) => {
-  //const userRole = "manager";
   const { userRole } = essential();
 
   const Path = data.map((item) => {
@@ -52,14 +50,10 @@ const GeneratePath = (data: SideNav[], selectedKey: string) => {
 };
 
 const getListLink = () => {
-  //   const userRole = "manager";
-  //   const sideNav = routes.get(userRole);
-  //   const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
-  //   const selectedKey = defaultSelectedKeys[0].split("_")[0];
   const { sideNav, selectedKey } = essential();
   const array = GeneratePath(sideNav, selectedKey);
   let link = "";
-  array.forEach((element) => {
+  array.forEach((element: string[]) => {
     if (element) {
       if (element[0]) {
         link = element[0];
@@ -70,11 +64,6 @@ const getListLink = () => {
 };
 
 const detailPath = (): string[] => {
-  //   const userRole = "manager";
-  //   const sideNav = routes.get(userRole);
-  //   const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
-  //   const openKey = defaultOpenKeys[0].split("_")[0];
-  //   const selectedKey = defaultSelectedKeys[0].split("_")[0];
   const { openKey, selectedKey } = essential();
   const detail = isDetailPath();
 
@@ -88,11 +77,11 @@ const detailPath = (): string[] => {
 };
 
 export default function BreadCrumb() {
-  const userRole = "manager";
+  const {userRole} = essential();
   const breadcrumbPath = detailPath();
   const link = getListLink();
   const breadcrumbPathLength = breadcrumbPath.length;
-  console.log(breadcrumbPathLength);
+
   //check if it is detail page
   //if it is not
   //CMS(link)/SideBarName/Open key
