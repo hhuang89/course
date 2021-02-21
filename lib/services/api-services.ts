@@ -113,6 +113,10 @@ export function getStudentById(params) {
   return get(`/students/${params}`, params);
 }
 
+export function getCourses(params) {
+  return get("/courses", params);
+}
+
 //post
 export function postLoginForm(body) {
   return post("/login", {

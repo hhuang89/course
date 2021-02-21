@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getDefaultKeys } from "./layout";
 import { getUserRole } from "../lib/services/storage"
+import styles from "../styles/Breadcrumb.module.css"
 
 const essential = () => {
   const userRole = "manager";
@@ -89,7 +90,7 @@ export default function BreadCrumb() {
   //CMS(link)/SideBarName(with link)/Open key
 
   return (
-    <Breadcrumb>
+    <Breadcrumb className={styles.breadcrumb}>
       <Breadcrumb.Item>
         <Link href="/">{`CMS ${userRole.toUpperCase()} SYSTEM`}</Link>
       </Breadcrumb.Item>

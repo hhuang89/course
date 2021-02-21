@@ -31,7 +31,6 @@ import {
 import { debounce } from "lodash";
 import DetailLayout from "../../../../components/layout";
 import { res } from "../../../../lib/constant/constants"
-const { Header, Sider, Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
@@ -81,10 +80,6 @@ export default function StudentDashboard() {
   const addOnclick = () => {
     setIsModalVisible(true);
     setEditingStudent(null);
-  };
-  const handleOk = () => {
-    form.submit;
-    setIsModalVisible(false);
   };
   const handleCancel = () => {
     form.resetFields();
@@ -311,7 +306,7 @@ export default function StudentDashboard() {
 
   return (
     <DetailLayout>
-      <div className={styles.FlexContainer}>
+      {/* <div className={styles.FlexContainer}>
         <Content
           className={styles.site_layout_content}
           style={{
@@ -319,7 +314,7 @@ export default function StudentDashboard() {
             padding: 20,
             minHeight: 280,
           }}
-        >
+        > */}
           <Button className={styles.add_button} onClick={addOnclick}>
             + ADD
           </Button>
@@ -424,8 +419,8 @@ export default function StudentDashboard() {
             current={paginator}
             onChange={setPaginator}
           />
-        </Content>
-      </div>
+        {/* </Content>
+      </div> */}
     </DetailLayout>
   );
 }

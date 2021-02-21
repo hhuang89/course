@@ -14,7 +14,7 @@ import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getUserRole } from "../lib/services/storage";
 import BreadCrumb from "./breadcrumb";
-const { Header, Sider } = Layout;
+const { Header, Sider, Content } = Layout;
 
 export const generateKey = (data: SideNav, index: number): string => {
   return `${data.label}_${index}`;
@@ -202,7 +202,18 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
           />
         </Header>
         <BreadCrumb />
-        {children}
+        <div className={styles.FlexContainer}>
+          <Content
+            className={styles.site_layout_content}
+            style={{
+              margin: "0 16px",
+              padding: 20,
+              minHeight: 280,
+            }}
+          >
+            {children}
+          </Content>
+        </div>
       </Layout>
     </Layout>
   );
