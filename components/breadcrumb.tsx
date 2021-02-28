@@ -10,7 +10,7 @@ const essential = () => {
   const userRole = "manager";
   const sideNav = routes.get(userRole);
   const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
-  const openKey = defaultOpenKeys[0].split("_")[0];
+  const openKey = defaultOpenKeys[0] ? defaultOpenKeys[0].split("_")[0] : "";
   const selectedKey = defaultSelectedKeys[0].split("_")[0];
 
   return {

@@ -1,3 +1,69 @@
+.H3 {
+  margin: 1em 0;
+}
+
 .CardRow {
-    border-bottom: 0.5px solid rgb(221, 216, 221);
+  border-bottom: 0.5px solid rgb(221, 216, 221);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.IdCardCol {
+  /* display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid #f0f0f0 ;
+  border-left: none;
+  border-bottom: none; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  border-top: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+  /* border-left: none;
+  border-bottom: none; */
+}
+
+.IdCardCol :last-child {
+  border-right: none;
+}
+
+.IdCardRow b {
+  font-size: 18pt;
+  color: rgb(107, 43, 226);
+}
+
+.IdCardCol p {
+  margin-bottom: 0;
+}
+
+.IdCardRow {
+  width: calc(100% + 48px);
+  margin: 0 0 0 -24px !important;
+}
+
+.IdTitle {
+  font-size: 16pt;
+  color: rgb(107, 43, 226);
+}
+
+.StepsRow {
+  overflow-x: scroll;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.StepsRow ::-webkit-scrollbar {
+  display: none;
+}
+
+.StepsRow .ant-steps-item-title {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 6em;
 }

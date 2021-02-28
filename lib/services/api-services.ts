@@ -97,6 +97,7 @@ function baseapi_delete(path) {
 
 //api service
 //get
+//student
 export function getCountry(params) {
   return get("/countries", params);
 }
@@ -113,8 +114,13 @@ export function getStudentById(params) {
   return get(`/students/${params}`, params);
 }
 
+//course
 export function getCourses(params) {
   return get("/courses", params);
+}
+
+export function getCourseById(params) {
+  return get(`/courses/detail`, params);
 }
 
 //post

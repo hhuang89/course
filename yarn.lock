@@ -2146,6 +2146,16 @@
   "resolved" "https://registry.npmjs.org/he/-/he-1.2.0.tgz"
   "version" "1.2.0"
 
+"highcharts-react-official@^3.0.0":
+  "integrity" "sha512-VefJgDY2hkT9gfppsQGrRF2g5u8d9dtfHGcx2/xqiP+PkZXCqalw9xOeKVCRvJKTOh0coiDFwvVjOvB7KaGl4A=="
+  "resolved" "https://registry.npmjs.org/highcharts-react-official/-/highcharts-react-official-3.0.0.tgz"
+  "version" "3.0.0"
+
+"highcharts@^9.0.1", "highcharts@>=6.0.0":
+  "integrity" "sha512-0UmcCz2RmFuqfT/Igu3h5sGnkeSqqZwfuYrTzJ/htptmJAo5SSxH62NFcTjVRk+3WstoBJmoXR0v5FVGQUzK5A=="
+  "resolved" "https://registry.npmjs.org/highcharts/-/highcharts-9.0.1.tgz"
+  "version" "9.0.1"
+
 "hmac-drbg@^1.0.0":
   "integrity" "sha1-0nRXAQJabHdabFRXk+1QL8DGSaE="
   "resolved" "https://registry.npmjs.org/hmac-drbg/-/hmac-drbg-1.0.1.tgz"
@@ -4009,7 +4019,7 @@
   "resolved" "https://registry.npmjs.org/react-refresh/-/react-refresh-0.8.3.tgz"
   "version" "0.8.3"
 
-"react@>=16.0.0", "react@17.0.1":
+"react@>=16.0.0", "react@>=16.8.0", "react@17.0.1":
   "integrity" "sha512-lG9c9UuMHdcAexXtigOZLX8exLWkW0Ku29qPRU8uhF2R9BN96dLCt0psvzPLlHc5OWkgymP3qwTRgbnw5BKx3w=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.1.tgz"
   "version" "17.0.1"

@@ -306,15 +306,7 @@ export default function StudentDashboard() {
 
   return (
     <DetailLayout>
-      {/* <div className={styles.FlexContainer}>
-        <Content
-          className={styles.site_layout_content}
-          style={{
-            margin: "0 16px",
-            padding: 20,
-            minHeight: 280,
-          }}
-        > */}
+
           <Button className={styles.add_button} onClick={addOnclick}>
             + ADD
           </Button>
@@ -419,8 +411,7 @@ export default function StudentDashboard() {
             current={paginator}
             onChange={setPaginator}
           />
-        {/* </Content>
-      </div> */}
+
     </DetailLayout>
   );
 }

@@ -209,6 +209,7 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
               margin: "0 16px",
               padding: 20,
               minHeight: 280,
+              width: 100,
             }}
           >
             {children}
