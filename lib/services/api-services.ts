@@ -1,8 +1,6 @@
 import { message } from "antd";
 import axios, { AxiosError } from "axios";
 import { AES } from "crypto-js";
-import { resolve } from "path";
-import { version } from "process";
 
 export interface IResponse<T = any> {
   code: number;
