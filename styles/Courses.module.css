@@ -9,14 +9,6 @@
 }
 
 .IdCardCol {
-  /* display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  position: relative;
-  border: 1px solid #f0f0f0 ;
-  border-left: none;
-  border-bottom: none; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,15 +16,13 @@
   position: relative;
   border-top: 1px solid #f0f0f0;
   border-right: 1px solid #f0f0f0;
-  /* border-left: none;
-  border-bottom: none; */
 }
 
-.IdCardCol :last-child {
+.IdCardCol:last-child {
   border-right: none;
 }
 
-.IdCardRow b {
+.IdCardCol b {
   font-size: 18pt;
   color: rgb(107, 43, 226);
 }

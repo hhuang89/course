@@ -6,85 +6,7 @@ import { useRouter } from "next/router";
 import CourseCard from "../../../../components/CourseCard";
 import WeekCalendar from "../../../../components/WeekCalendar"
 import styles from "../../../../styles/Courses.module.css";
-
-
-interface GetCourseByIdResponse {
-  data: Course;
-  code: number;
-  msg: string;
-}
-
-interface Course {
-  createdAt: string;
-  updatedAt: string;
-  id: number;
-  cover: string;
-  detail: string;
-  duration: number;
-  durationUnit: number;
-  maxStudents: number;
-  name: string;
-  price: number;
-  uid: string;
-  star: number;
-  startTime: string;
-  status: number;
-  scheduleId: number;
-  teacherId: number;
-  teacher: Teacher;
-  schedule: Schedule;
-  type: CourseType[];
-  sales: Sales;
-  teacherName: string;
-}
-
-interface Sales {
-  createdAt: string;
-  updatedAt: string;
-  id: number;
-  batches: number;
-  price: number;
-  earnings: number;
-  paidAmount: number;
-  studentAmount: number;
-  paidIds: number[];
-}
-
-interface CourseType {
-  id: number;
-  name: string;
-}
-
-interface Schedule {
-  createdAt: string;
-  updatedAt: string;
-  id: number;
-  status: number;
-  current: number;
-  classTime: string[];
-  chapters: Chapter[];
-}
-
-interface Chapter {
-  createdAt: string;
-  updatedAt: string;
-  id: number;
-  name: string;
-  order: number;
-  content: string;
-}
-
-interface Teacher {
-  createdAt: string;
-  updatedAt: string;
-  id: number;
-  country: string;
-  courseAmount: number;
-  email: string;
-  name: string;
-  phone: string;
-  profileId: number;
-}
+import { Schedule, GetCourseByIdResponse, Course, Sales } from "../../../../lib/model/course"
 
 enum CourseStatus {
   'warning',
@@ -103,6 +25,8 @@ enum CourseStatusText {
   'processing',
   'pending',
 }
+
+
 
 export async function getServerSideProps(context) {
   const { id } = context.params;

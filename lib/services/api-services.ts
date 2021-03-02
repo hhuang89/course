@@ -97,6 +97,11 @@ function baseapi_delete(path) {
 
 //api service
 //get
+//overview
+export function getOverview(params) {
+  return get("/statistics/overview", params);
+}
+
 //student
 export function getCountry(params) {
   return get("/countries", params);

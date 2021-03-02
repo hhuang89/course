@@ -36,7 +36,7 @@ export default function CourseCard(props: React.PropsWithChildren<Course> & { ca
 
       <Row gutter={gutter} className={styles.CardRow} justify="space-between">
         <Col flex={20}>Teacher:</Col>
-        <Col flex={1} style={{ fontWeight: "bold" }}>
+        <Col flex={1} style={{ fontWeight: "bold", textAlign: "right"}}>
           {props?.teacherName && <Link href="/">{props.teacherName}</Link>}
         </Col>
       </Row>
