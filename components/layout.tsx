@@ -1,19 +1,33 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { findIndex, memoize } from "lodash";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import "antd/dist/antd.css";
-import { Layout, Menu, message } from "antd";
+import {
+  Badge,
+  Dropdown,
+  Layout,
+  Menu,
+  message,
+  List,
+  Typography,
+  Tabs,
+  notification,
+} from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   LogoutOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import styles from "../styles/Students.module.css";
 import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getUserRole } from "../lib/services/storage";
 import BreadCrumb from "./breadcrumb";
+import { getMessageStatistics, baseURL } from "../lib/services/api-services";
+import { MessageResponse, MessageStatistics, Message } from "../lib/model/message";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useMsgStatistic } from "./provider"
 const { Header, Sider, Content } = Layout;
 
 export const generateKey = (data: SideNav, index: number): string => {
@@ -134,6 +148,84 @@ function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
   });
 }
 
+
+export const MessagePanel = () => {
+  const [messageStatistics, setMessageStatistics] = useState<MessageStatistics>();
+
+  const [message, setMessage] = useState<Message>(null);
+  
+  useEffect(() => {
+    getMessageStatistics("").then((res: MessageResponse) => {
+      setMessageStatistics(res.data);
+    });
+
+  }, []);
+  console.log(EventSource);
+  const sse = new EventSource(`${baseURL}message/subscribe?userId=${3}`, { withCredentials: true });
+
+  sse.onmessage = ((event) => {
+    console.log(event);
+  })
+  const data = [
+    "Racing car sprays burning fuel into crowd.",
+    "Japanese princess to wed commoner.",
+    "Australian walks 100km after outback crash.",
+    "Man charged over missing wedding girl.",
+    "Los Angeles battles huge wildfires.",
+  ];
+  //const count = messageStatistics?.receive?.message.unread + messageStatistics?.receive?.notification.unread;
+//redux reducer 父子组建监听
+  return (
+    <Badge size={"small"} count={123} overflowCount={99} offset={[10, 0]}>
+      <Dropdown
+        overlayStyle={{
+          background: "#fff",
+          borderRadius: 4,
+          width: 400,
+          height: 500,
+          overflow: "hidden",
+        }}
+
+        overlay={
+          <>
+            <Tabs defaultActiveKey="Notification">
+              <Tabs.TabPane tab={`notification (${messageStatistics?.receive.notification.unread})`} key="Notification">
+                <List
+                  header={<div>Header</div>}
+                  footer={<div>Footer</div>}
+                  bordered
+                  dataSource={data}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <Typography.Text mark>[ITEM]</Typography.Text> {item}
+                    </List.Item>
+                  )}
+                />
+              </Tabs.TabPane>
+
+              <Tabs.TabPane tab={`message (${messageStatistics?.receive.message.unread})`} key="Message">
+                <List
+                  header={<div>Header</div>}
+                  footer={<div>Footer</div>}
+                  bordered
+                  dataSource={data}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <Typography.Text mark>[ITEM]</Typography.Text> {item}
+                    </List.Item>
+                  )}
+                />
+              </Tabs.TabPane>
+            </Tabs>
+          </>
+        }
+      >
+        <BellOutlined style={{ color: "#fff", fontSize: 24, marginTop: 5 }} />
+      </Dropdown>
+    </Badge>
+  );
+};
+
 export default function DetailLayout(props: React.PropsWithChildren<any>) {
   const { children } = props;
   // const SideNav = routes.get(getUserRole())
@@ -194,7 +286,7 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
               onClick: toggle,
             }
           )}
-
+          <MessagePanel />
           <LogoutOutlined
             className={styles.trigger}
             style={{ float: "right" }}

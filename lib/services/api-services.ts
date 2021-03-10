@@ -1,6 +1,8 @@
 import { message } from "antd";
 import axios, { AxiosError } from "axios";
 import { AES } from "crypto-js";
+import { MessageStatistics } from "../model/message";
+import { getUserId } from "./storage"
 
 export interface IResponse<T = any> {
   code: number;
@@ -8,7 +10,7 @@ export interface IResponse<T = any> {
   data?: T;
 }
 
-const baseURL = "https://cms.chtoma.com/api/";
+export const baseURL = "https://cms.chtoma.com/api/";
 const axiosInstance = axios.create({
   withCredentials: true,
   baseURL,
@@ -46,7 +48,7 @@ async function get(path, params) {
     })
     .catch((err) => {
       return　new Promise((_, reject) => {
-        reject(err.response.data)
+        reject(err.data)
       })
     });
 }
@@ -95,9 +97,29 @@ function baseapi_delete(path) {
 
 //api service
 //get
+//message
+export function getMessageStatistics(params) {
+  return get("/message/statistics", params);
+}
+//auth
+export function getUserRole(params) {
+  return get("/userRole", params);
+}
 //overview
 export function getOverview(params) {
   return get("/statistics/overview", params);
+}
+
+export function getStatisticsStudent(params) {
+  return get("/statistics/student", params);
+}
+
+export function getStatisticsTeacher(params) {
+  return get("/statistics/teacher", params);
+}
+
+export function getStatisticsCourse(params) {
+  return get("/statistics/course", params);
 }
 
 //student

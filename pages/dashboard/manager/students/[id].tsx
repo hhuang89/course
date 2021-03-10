@@ -110,7 +110,6 @@ export default function Page({ id }) {
         message.error("CANNOT INITIALISE PAGE");
       });
   }, []);
-  console.log();
 
   const columns: ColumnType<any>[] = [
     {

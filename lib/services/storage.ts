@@ -13,5 +13,12 @@ export function getUserRole() {
     } catch {
         null;
     }
-    
+}
+
+export function getUserId() {
+    try {
+        return JSON.parse(localStorage.getItem("auth")).userId;
+    } catch {
+        null;
+    }
 }

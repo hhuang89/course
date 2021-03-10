@@ -9,7 +9,8 @@ import { Form, Input, Button, Checkbox, Radio, Row, Col, message } from "antd";
 
 import { AES } from "crypto-js";
 import { postLoginForm } from "../lib/services/api-services";
-import { res } from "../lib/constant/constants"
+import { res } from "../lib/constant/constants";
+import { IResponse } from "../lib/services/api-services";
 
 export interface LoginFormValues {
   username: string;
@@ -23,7 +24,7 @@ export default function Login() {
   const router = useRouter();
 
   const onFinish = async (values: LoginFormValues) => {
-    await postLoginForm(values).then((res: res) => {
+    await postLoginForm(values).then((res: IResponse) => {
       localStorage.setItem("auth", JSON.stringify(res.data));
       //localStorage.setItem("token", JSON.stringify(res.data.token));
       if (res.code >= 200 && res.code < 300) {

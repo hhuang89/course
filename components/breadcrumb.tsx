@@ -1,13 +1,22 @@
-import { Breadcrumb } from "antd";
+import { Breadcrumb, message } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getDefaultKeys } from "./layout";
-import { getUserRole } from "../lib/services/storage"
-import styles from "../styles/Breadcrumb.module.css"
+import { getUserRole, IResponse } from "../lib/services/api-services";
+import styles from "../styles/Breadcrumb.module.css";
+import { useEffect, useState } from "react";
+
+
 
 const essential = () => {
+  // let Role = "";
+  // const role = getUserRole("").then((res: IResponse) => {
+  //   Role = res.data;
+  //   return Role;
+  // }).catch((err) => message.error(err));
   const userRole = "manager";
+
   const sideNav = routes.get(userRole);
   const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
   const openKey = defaultOpenKeys[0] ? defaultOpenKeys[0].split("_")[0] : "";
@@ -78,6 +87,15 @@ const detailPath = (): string[] => {
 };
 
 export default function BreadCrumb() {
+  // const [userRole, setUserRole] = useState(null);
+  // useEffect(() => {
+  //   getUserRole("")
+  //     .then((res: IResponse) => {
+  //       const role = res.data;
+  //       setUserRole(role);
+  //     })
+  //     .catch((err) => message.error(err));
+  // });
   const {userRole} = essential();
   const breadcrumbPath = detailPath();
   const link = getListLink();
@@ -95,16 +113,19 @@ export default function BreadCrumb() {
         <Link href="/">{`CMS ${userRole.toUpperCase()} SYSTEM`}</Link>
       </Breadcrumb.Item>
       {breadcrumbPath.map((item, index) => {
-          if (breadcrumbPathLength === 2) {
-            return <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>;
+        if (breadcrumbPathLength === 2) {
+          return <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>;
+        } else {
+          if (index === breadcrumbPath.length - 2) {
+            return (
+              <Breadcrumb.Item key={index}>
+                <Link href={link}>{item}</Link>
+              </Breadcrumb.Item>
+            );
           } else {
-              if (index === (breadcrumbPath.length -2)) {
-                  return <Breadcrumb.Item key={index}><Link href={link}>{item}</Link></Breadcrumb.Item>;
-              } else {
-                  return <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>;
-              }
+            return <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>;
           }
-        
+        }
       })}
     </Breadcrumb>
   );

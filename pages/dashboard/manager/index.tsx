@@ -6,23 +6,30 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import DetailLayout from "../../../components/layout";
-import { getOverview } from "../../../lib/services/api-services";
-import { OverviewResponse } from "../../../lib/model/overview";
+import { getOverview, getStatisticsStudent, getStatisticsTeacher, getStatisticsCourse } from "../../../lib/services/api-services";
+import { OverviewResponse, StudentStatistics, TeacherStatistics, CourseStatistics, Statistic, Skills } from "../../../lib/model/overview";
 import styles from "../../../styles/Overview.module.css";
+import { gutter, Role } from "../../../lib/constant";
+import LineChart from "../../../components/line";
+import BarChart from "../../../components/bar";
 
 const CalculatePercent = (data) => {
   const lastMonthAddedPercent = +parseFloat(
-    String((data.lastMonthAdded / data.total) * 100)
+    String((data?.lastMonthAdded / data?.total) * 100)
   ).toFixed(1);
 
   return lastMonthAddedPercent;
 };
 
+
 export default function Manager() {
   const { Meta } = Card;
   const { Title } = Typography;
   const [overview, setOverview] = useState<OverviewResponse>(null);
-
+  const [studentStatistics, setStudentStatistics] = useState<StudentStatistics>(null);
+  const [teacherStatistics, setTeacherStatistics] = useState<TeacherStatistics>(null);
+  const [courseStatistics, setCourseStatistics] = useState<CourseStatistics>(null);
+  
   useEffect(() => {
     getOverview("")
       .then((res: any) => {
@@ -30,7 +37,22 @@ export default function Manager() {
         setOverview(data);
       })
       .catch((err) => message.error(err));
-  });
+    getStatisticsStudent("")
+    .then((res: any) => {
+      const { data } = res;
+      setStudentStatistics(data);
+    })
+    getStatisticsTeacher("")
+    .then((res: any) => {
+      const { data } = res;
+      setTeacherStatistics(data);
+    })
+    getStatisticsCourse("")
+    .then((res: any) => {
+      const { data } = res;
+      setCourseStatistics(data);
+    })
+  },[]);
 
   return (
     <DetailLayout>
@@ -43,7 +65,7 @@ export default function Manager() {
                 <Avatar
                   style={{
                     marginTop: 25,
-                    color: "#fde3cf",
+                    color: "rgb(153, 153, 153)",
                     backgroundColor: "#fff",
                   }}
                   size={80}
@@ -86,7 +108,7 @@ export default function Manager() {
                     backgroundColor: "#fff",
                   }}
                   size={80}
-                  icon={<SolutionOutlined />}
+                  icon={<DeploymentUnitOutlined />}
                 />
               }
               title={
@@ -125,7 +147,7 @@ export default function Manager() {
                     backgroundColor: "#fff",
                   }}
                   size={80}
-                  icon={<SolutionOutlined />}
+                  icon={<ReadOutlined />}
                 />
               }
               title={
@@ -149,6 +171,32 @@ export default function Manager() {
                   } Increase in 30 Days`}</p>
                 </>
               }
+            />
+          </Card>
+        </Col>
+      </Row>
+
+
+      <Row gutter={gutter}>
+        <Col span={12}>
+          <Card title="Increment">
+            <LineChart
+              data={{
+                [Role.student]: studentStatistics?.createdAt as Statistic[],
+                [Role.teacher]: teacherStatistics?.createdAt as Statistic[],
+                course: courseStatistics?.createdAt as Statistic[],
+              }}
+            />
+          </Card>
+        </Col>
+
+        <Col span={12}>
+          <Card title="Languages">
+            <BarChart
+              data={{
+                interest: studentStatistics?.interest as Statistic[],
+                teacher: teacherStatistics?.skills as Skills,
+              }}
             />
           </Card>
         </Col>

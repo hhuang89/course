@@ -281,7 +281,6 @@ export default function StudentDashboard() {
         setTotal(total);
       })
       .catch((err) => {
-        console.log(err);
         message.error("cannot catch student");
       });
   }, [paginator]);
