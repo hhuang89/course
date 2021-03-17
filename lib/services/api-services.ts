@@ -42,9 +42,10 @@ async function get(path, params) {
   return axiosInstance
     .get(path, { params: params })
     .then((response) => {
-      return new Promise((resolve) => {
-        resolve(response.data);
-      });
+      return response.data;
+      // return new Promise((resolve) => {
+      //   resolve(response.data);
+      // });
     })
     .catch((err) => {
       return　new Promise((_, reject) => {

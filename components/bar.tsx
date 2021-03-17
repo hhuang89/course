@@ -60,37 +60,37 @@ export default function BarChart({ data }: BarChartProps) {
     //}
   });
 
-//   useEffect(() => {
-//     if (!data) return;
-//     const { interest, teacher } = data;
+  useEffect(() => {
+    if (!data) return;
+    const { interest, teacher } = data;
+    console.log(interest);
+    // const xCategories: string[] = uniq([
+    //   ...interest.map(({ name }) => name),
+    //   ...Object.keys(teacher),
+    // ]);
 
-//     // const xCategories: string[] = uniq([
-//     //   ...interest.map(({ name }) => name),
-//     //   ...Object.keys(teacher),
-//     // ]);
+    // const series = Object.entries(data.interest)
+    //   .filter(([_, interest]) => !!interest && !!interest.length)
+    //   .map(([title, data]) => ({
+    //     name: "interest",
+    //     data: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    //   }));
 
-//     const series = Object.entries(data?.interest)
-//       .filter(([_, interest]) => !!interest && !!interest.length)
-//       .map(([title, data]) => ({
-//         name: "interest",
-//         data: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-//       }));
-
-//     setOptions({
-//       xAxis: {
-//         type: "category",
-//         labels: {
-//           rotation: -45,
-//           style: {
-//             fontSize: "13px",
-//             fontFamily: "Verdana, sans-serif",
-//           },
-//         },
-//         //categories: xCategories,
-//         series: series,
-//       },
-//     });
-//   }, [data]);
+    setOptions({
+      xAxis: {
+        type: "category",
+        labels: {
+          rotation: -45,
+          style: {
+            fontSize: "13px",
+            fontFamily: "Verdana, sans-serif",
+          },
+        },
+        //categories: xCategories,
+        //series: series,
+      },
+    });
+  }, [data]);
 
   return (
     <HighchartsReact options={options} highcharts={Highcharts} {...data} />

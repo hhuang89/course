@@ -37,16 +37,19 @@ export default function Manager() {
         setOverview(data);
       })
       .catch((err) => message.error(err));
+
     getStatisticsStudent("")
     .then((res: any) => {
       const { data } = res;
       setStudentStatistics(data);
     })
+
     getStatisticsTeacher("")
     .then((res: any) => {
       const { data } = res;
       setTeacherStatistics(data);
     })
+    
     getStatisticsCourse("")
     .then((res: any) => {
       const { data } = res;

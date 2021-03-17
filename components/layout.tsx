@@ -27,7 +27,7 @@ import BreadCrumb from "./breadcrumb";
 import { getMessageStatistics, baseURL } from "../lib/services/api-services";
 import { MessageResponse, MessageStatistics, Message } from "../lib/model/message";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useMsgStatistic } from "./provider"
+import { MessageConsumer } from "./provider"
 const { Header, Sider, Content } = Layout;
 
 export const generateKey = (data: SideNav, index: number): string => {
@@ -151,21 +151,48 @@ function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
 
 export const MessagePanel = () => {
   const [messageStatistics, setMessageStatistics] = useState<MessageStatistics>();
-
   const [message, setMessage] = useState<Message>(null);
-  
+  const { state, dispatch } = MessageConsumer();
+   
   useEffect(() => {
     getMessageStatistics("").then((res: MessageResponse) => {
       setMessageStatistics(res.data);
+
+      if (!!res.data) {
+        const {
+          receive: { notification, message },
+        } = res.data;
+
+        dispatch({type: "increment", payload: {type: "notification", count: notification.unread}})
+        dispatch({type: "increment", payload: {type: "message", count: message.unread}})
+      }
+
     });
 
-  }, []);
-  console.log(EventSource);
-  const sse = new EventSource(`${baseURL}message/subscribe?userId=${3}`, { withCredentials: true });
+    const sse = new EventSource(`${baseURL}message/subscribe?userId=${3}`, { withCredentials: true });
+  
+    sse.onmessage = ((event) => {
+      //get 3 same event by one sent message
+      console.log(event);
 
-  sse.onmessage = ((event) => {
-    console.log(event);
-  })
+      let {data} = event;
+      data = JSON.parse(data || {});
+
+      if (data.type !== "heartbeat") {
+        if (data.content) {
+          const content = data.content as Message;
+          setMessage(content);
+          dispatch({type: "increment", payload: {type: content.type, count: 1}});
+        }
+      }
+
+    })
+
+    //why reset here
+    return () => sse.close();
+
+  }, []);
+
   const data = [
     "Racing car sprays burning fuel into crowd.",
     "Japanese princess to wed commoner.",
@@ -174,9 +201,9 @@ export const MessagePanel = () => {
     "Los Angeles battles huge wildfires.",
   ];
   //const count = messageStatistics?.receive?.message.unread + messageStatistics?.receive?.notification.unread;
-//redux reducer 父子组建监听
+  //redux reducer 父子组建监听
   return (
-    <Badge size={"small"} count={123} overflowCount={99} offset={[10, 0]}>
+    <Badge size={"small"} count={state.total} overflowCount={99} offset={[10, 0]}>
       <Dropdown
         overlayStyle={{
           background: "#fff",

@@ -1,57 +1,50 @@
-import { createContext, Dispatch, useContext, useReducer } from 'react';
-import { MessageType } from '../lib/model/message';
+import { ConfigContext } from 'antd/lib/config-provider';
+import React, { createContext, useReducer, Dispatch, useContext} from 'react';
 
-export type MessageTypeWithTotal = MessageType | 'total';
+interface MessageState {
+  total: number,
+  notification: number,
+  message: number
+}
+type MessageType = 'notification' | 'message' | 'total';
+type Action = 'increment';
+type MessageAction = {
+  type: Action,
+  payload?: {type: MessageType, count: number}
+}
 
-export type StoreState = { [key in MessageTypeWithTotal]: number };
-
-export type ActionType = 'increment' | 'decrement' | 'reset';
-
-export type MessageAction = {
-  type: ActionType;
-  payload?: { count: number; type: MessageTypeWithTotal };
-};
-
-const store: StoreState = {
+const initialState: MessageState = {
   total: 0,
-  notification: 0,
   message: 0,
+  notification: 0,
 };
 
-export function messageReducer(state: StoreState, action: MessageAction) {
-  switch (action.type) {
+const Reducer = (state: MessageState, action: MessageAction) => {
+  switch(action.type) {
     case 'increment':
       return {
         ...state,
-        [action.payload.type]: state[action.payload.type] + action.payload.count,
-        total: state.total + action.payload.count,
-      };
-    case 'decrement':
-      return {
-        ...state,
-        [action.payload.type]: state[action.payload.type] - action.payload.count,
-        total: state.total - action.payload.count,
-      };
-    case 'reset':
-      return { ...store };
-    default:
-      return { ...state };
-  }
+        [action.payload.type]: action.payload.count + state[action.payload.type],
+        total: state.total + action.payload.count
+      }
+
+      default:
+        throw new Error();
+  };
 }
-export const MessageStatisticsContext = createContext<{
-  msgStore: StoreState;
-  dispatch: Dispatch<MessageAction>;
-}>(null);
 
-export const MessageProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(messageReducer, store);
+//why null?
+export const Context = createContext<{state: MessageState, dispatch: Dispatch<MessageAction>}>(null);
 
-  return (
-    <MessageStatisticsContext.Provider value={{ msgStore: state, dispatch }}>
+//initial while the app start
+export const Store = ( { children } ) => {
+  const [state, dispatch] = useReducer(Reducer, initialState);
+
+  return(
+    <Context.Provider value={{state, dispatch}} >
       {children}
-    </MessageStatisticsContext.Provider>
-  );
-};
+    </Context.Provider>
+  )
+}
 
-export const useMsgStatistic = () =>
-  useContext<{ msgStore: StoreState; dispatch: Dispatch<MessageAction> }>(MessageStatisticsContext);
+export const MessageConsumer = () => useContext<{ state: MessageState; dispatch: Dispatch<MessageAction> }>(Context);
