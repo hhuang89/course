@@ -24,10 +24,15 @@ import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getUserRole } from "../lib/services/storage";
 import BreadCrumb from "./breadcrumb";
-import { getMessageStatistics, baseURL } from "../lib/services/api-services";
-import { MessageResponse, MessageStatistics, Message } from "../lib/model/message";
+import { getMessageStatistics, baseURL, getMessage } from "../lib/services/api-services";
+import {
+  MessageResponse,
+  MessageStatistics,
+  Message,
+  MessageType,
+} from "../lib/model/message";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { MessageConsumer } from "./provider"
+import { MessageConsumer } from "./provider";
 const { Header, Sider, Content } = Layout;
 
 export const generateKey = (data: SideNav, index: number): string => {
@@ -148,14 +153,44 @@ function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
   });
 }
 
+export const ListItem = (props: any) => {
+  interface Params {
+    limit: number,
+    page: number,
+    type: MessageType,
+  }
+
+  const [notification, setNotification] = useState<Message>(null);
+  const [message, setMessage] = useState<Message[]>(null);
+  const [params, setParams] = useState<Params>(null);
+
+  const [hasMore, setHasMore] = useState(true);
+
+  //type
+  //setParams{type: props.type}
+  useEffect(() => {
+    getMessage(params)
+    .then((res) => {
+      if (params.type === 'notification') {
+        setNotification(res.data.message);
+      } else if (params.type === 'message') {
+        setMessage(res.data.message);
+      }
+    })
+  }, [params])
+}
 
 export const MessagePanel = () => {
-  const [messageStatistics, setMessageStatistics] = useState<MessageStatistics>();
-  const [message, setMessage] = useState<Message>(null);
+  const [
+    messageStatistics,
+    setMessageStatistics,
+  ] = useState<MessageStatistics>();
+  const [newMessage, setNewMessage] = useState<Message>(null);
   const { state, dispatch } = MessageConsumer();
-   
-  useEffect(() => {
-    getMessageStatistics("").then((res: MessageResponse) => {
+  const types: MessageType[] = ["notification", "message"];
+
+  const userInfo = useEffect(() => {
+    getMessageStatistics().then((res: MessageResponse) => {
       setMessageStatistics(res.data);
 
       if (!!res.data) {
@@ -163,34 +198,41 @@ export const MessagePanel = () => {
           receive: { notification, message },
         } = res.data;
 
-        dispatch({type: "increment", payload: {type: "notification", count: notification.unread}})
-        dispatch({type: "increment", payload: {type: "message", count: message.unread}})
+        dispatch({
+          type: "increment",
+          payload: { type: "notification", count: notification.unread },
+        });
+        dispatch({
+          type: "increment",
+          payload: { type: "message", count: message.unread },
+        });
       }
-
     });
 
-    const sse = new EventSource(`${baseURL}message/subscribe?userId=${3}`, { withCredentials: true });
-  
-    sse.onmessage = ((event) => {
-      //get 3 same event by one sent message
-      console.log(event);
+    const sse = new EventSource(`${baseURL}message/subscribe?userId=${3}`, {
+      withCredentials: true,
+    });
 
-      let {data} = event;
+    sse.onmessage = (event) => {
+      let { data } = event;
       data = JSON.parse(data || {});
 
       if (data.type !== "heartbeat") {
         if (data.content) {
           const content = data.content as Message;
-          setMessage(content);
-          dispatch({type: "increment", payload: {type: content.type, count: 1}});
+          setNewMessage(content);
+          dispatch({
+            type: "increment",
+            payload: { type: content.type, count: 1 },
+          });
         }
       }
+    };
 
-    })
-
-    //why reset here
-    return () => sse.close();
-
+    return () => {
+      () => sse.close()
+      dispatch({type: 'reset'})
+    }
   }, []);
 
   const data = [
@@ -200,10 +242,16 @@ export const MessagePanel = () => {
     "Man charged over missing wedding girl.",
     "Los Angeles battles huge wildfires.",
   ];
-  //const count = messageStatistics?.receive?.message.unread + messageStatistics?.receive?.notification.unread;
-  //redux reducer 父子组建监听
+
+
+  //global store
   return (
-    <Badge size={"small"} count={state.total} overflowCount={99} offset={[10, 0]}>
+    <Badge
+      size={"small"}
+      count={state.total}
+      overflowCount={99}
+      offset={[10, 0]}
+    >
       <Dropdown
         overlayStyle={{
           background: "#fff",
@@ -212,37 +260,28 @@ export const MessagePanel = () => {
           height: 500,
           overflow: "hidden",
         }}
-
         overlay={
           <>
-            <Tabs defaultActiveKey="Notification">
-              <Tabs.TabPane tab={`notification (${messageStatistics?.receive.notification.unread})`} key="Notification">
-                <List
-                  header={<div>Header</div>}
-                  footer={<div>Footer</div>}
-                  bordered
-                  dataSource={data}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <Typography.Text mark>[ITEM]</Typography.Text> {item}
-                    </List.Item>
-                  )}
-                />
-              </Tabs.TabPane>
+            <Tabs defaultActiveKey="notification">
+              {types.map((type) => (
+                <Tabs.TabPane 
+                  tab={`${type} (${state[type]})`}
+                  key={type}
+                >
 
-              <Tabs.TabPane tab={`message (${messageStatistics?.receive.message.unread})`} key="Message">
-                <List
-                  header={<div>Header</div>}
-                  footer={<div>Footer</div>}
-                  bordered
-                  dataSource={data}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <Typography.Text mark>[ITEM]</Typography.Text> {item}
-                    </List.Item>
-                  )}
-                />
-              </Tabs.TabPane>
+                  {/*<List type={type}/>*/}
+                  {/* <List
+                    dataSource={data}
+                    renderItem={(item) => (
+                      <List.Item>
+                        {}
+                      </List.Item>
+                    )}
+                  /> */}
+
+                </Tabs.TabPane>
+              ))}
+
             </Tabs>
           </>
         }

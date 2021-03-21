@@ -38,9 +38,9 @@ function errorHandler(err: AxiosError<IResponse>): IResponse {
 }
 
 //Base Api Service
-async function get(path, params) {
+async function get(path, params = "") {
   return axiosInstance
-    .get(path, { params: params })
+    .get(path, { params: params})
     .then((response) => {
       return response.data;
       // return new Promise((resolve) => {
@@ -99,8 +99,12 @@ function baseapi_delete(path) {
 //api service
 //get
 //message
-export function getMessageStatistics(params) {
+export function getMessageStatistics(params="") {
   return get("/message/statistics", params);
+}
+
+export function getMessage(params) {
+  return get("/message", params);
 }
 //auth
 export function getUserRole(params) {
