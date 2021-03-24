@@ -63,7 +63,6 @@ export default function BarChart({ data }: BarChartProps) {
   useEffect(() => {
     if (!data) return;
     const { interest, teacher } = data;
-    console.log(interest);
     // const xCategories: string[] = uniq([
     //   ...interest.map(({ name }) => name),
     //   ...Object.keys(teacher),

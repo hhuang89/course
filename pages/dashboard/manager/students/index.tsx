@@ -99,7 +99,6 @@ export default function StudentDashboard() {
 
   const onFinish = (values) => {
     if (!!editingStudent) {
-      console.log(editingStudent.id);
       updateStudent({ id: editingStudent.id, ...values })
         .then((res:res) => {
 

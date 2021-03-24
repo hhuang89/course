@@ -70,7 +70,6 @@ export default function LineChart({ data }: LineChartProps) {
     setOptions({
       series,
     });
-    console.log(series);
   }, [data]);
   
 

@@ -1,19 +1,19 @@
-import { User } from './user';
+import { User } from "./user";
 
-export interface MessageResponse {
-    code: number;
-    msg: string;
-    data?: MessageStatistics;
+export interface MessageResponse<T = any> {
+  code: number;
+  msg: string;
+  data?: T;
 }
 
-export type MessageType = 'notification' | 'message';
+export type MessageType = "notification" | "message";
 
 export interface Message {
   createdAt: string;
   id: number;
   content: string;
   status: number;
-  from: Omit<User, 'email'>;
+  from: Omit<User, "email">;
   type: MessageType;
 }
 

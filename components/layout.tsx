@@ -12,19 +12,27 @@ import {
   Typography,
   Tabs,
   notification,
+  Avatar,
+  Row,
 } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   LogoutOutlined,
   BellOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import styles from "../styles/Students.module.css";
 import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
 import { getUserRole } from "../lib/services/storage";
 import BreadCrumb from "./breadcrumb";
-import { getMessageStatistics, baseURL, getMessage } from "../lib/services/api-services";
+import {
+  getMessageStatistics,
+  baseURL,
+  getMessage,
+} from "../lib/services/api-services";
 import {
   MessageResponse,
   MessageStatistics,
@@ -153,32 +161,69 @@ function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
   });
 }
 
-export const ListItem = (props: any) => {
-  interface Params {
-    limit: number,
-    page: number,
-    type: MessageType,
-  }
+interface Params {
+  limit: number;
+  page: number;
+  type?: MessageType;
+}
 
-  const [notification, setNotification] = useState<Message>(null);
-  const [message, setMessage] = useState<Message[]>(null);
-  const [params, setParams] = useState<Params>(null);
-
+export const Messages = (props: { type: MessageType }) => {
+  const [message, setMessage] = useState<Message[]>([]);
+  const [params, setParams] = useState<Params>({
+    limit: 10,
+    page: 1,
+    type: props.type,
+  });
   const [hasMore, setHasMore] = useState(true);
 
-  //type
-  //setParams{type: props.type}
   useEffect(() => {
-    getMessage(params)
-    .then((res) => {
-      if (params.type === 'notification') {
-        setNotification(res.data.message);
-      } else if (params.type === 'message') {
-        setMessage(res.data.message);
-      }
-    })
-  }, [params])
-}
+    getMessage(params).then((res: MessageResponse) => {
+      //const fresh = res.data.messages;
+      const {
+        data: { total, messages: fresh },
+      } = res;
+      const source = [...message, ...fresh];
+      setMessage(source);
+
+      setHasMore(source.length < total);
+    });
+  }, [params]);
+
+  return (
+    <>
+      <InfiniteScroll
+        next={() => setParams({ ...params, page: params.page + 1 })}
+        hasMore={hasMore}
+        loader={<div>Loading</div>}
+        dataLength={message.length}
+        style={{ overflow: "hidden" }}
+        scrollableTarget={"notification"}
+      >
+        <List
+          dataSource={!!message ? message : []}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar icon={<UserOutlined />} />}
+                title={item.from.nickname}
+                description={
+                  <>
+                    <Row>{item.content}</Row>
+                    <Row>
+                      {formatDistanceToNow(new Date(item.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </Row>
+                  </>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      </InfiniteScroll>
+    </>
+  );
+};
 
 export const MessagePanel = () => {
   const [
@@ -187,7 +232,7 @@ export const MessagePanel = () => {
   ] = useState<MessageStatistics>();
   const [newMessage, setNewMessage] = useState<Message>(null);
   const { state, dispatch } = MessageConsumer();
-  const types: MessageType[] = ["notification", "message"];
+  const types: MessageType[] = ["notification", "message"] as MessageType[];
 
   const userInfo = useEffect(() => {
     getMessageStatistics().then((res: MessageResponse) => {
@@ -230,9 +275,9 @@ export const MessagePanel = () => {
     };
 
     return () => {
-      () => sse.close()
-      dispatch({type: 'reset'})
-    }
+      () => sse.close();
+      dispatch({ type: "reset" });
+    };
   }, []);
 
   const data = [
@@ -242,7 +287,6 @@ export const MessagePanel = () => {
     "Man charged over missing wedding girl.",
     "Los Angeles battles huge wildfires.",
   ];
-
 
   //global store
   return (
@@ -260,29 +304,19 @@ export const MessagePanel = () => {
           height: 500,
           overflow: "hidden",
         }}
+        trigger={['click']}
         overlay={
           <>
             <Tabs defaultActiveKey="notification">
               {types.map((type) => (
-                <Tabs.TabPane 
-                  tab={`${type} (${state[type]})`}
-                  key={type}
-                >
-
-                  {/*<List type={type}/>*/}
-                  {/* <List
-                    dataSource={data}
-                    renderItem={(item) => (
-                      <List.Item>
-                        {}
-                      </List.Item>
-                    )}
-                  /> */}
-
+                <Tabs.TabPane tab={`${type} (${state[type]})`} key={type}>
+                  <Messages type={type} />
                 </Tabs.TabPane>
               ))}
-
             </Tabs>
+            <Layout.Footer>
+              <div>Mark all</div>
+            </Layout.Footer>
           </>
         }
       >
