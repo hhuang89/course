@@ -10,16 +10,21 @@ import {
     MessageOutlined
   } from '@ant-design/icons';
   import React from 'react';
+  import { Role } from '../model';
   /**
    * router path
    */
-  export enum RoutePath {
+   export enum RoutePath {
     manager = 'manager',
     teachers = 'teachers',
     students = 'students',
+    selectStudents = 'selectStudents',
     courses = 'courses',
     addCourse = 'add-course',
     editCourse = 'edit-course',
+    own = 'own',
+    schedule = 'schedule',
+    profile = 'profile',
     message = 'message',
   }
   
@@ -33,7 +38,7 @@ import {
   }
   
   const students: SideNav = {
-    path: [],
+    path: [RoutePath.students],
     label: 'Student',
     icon: <SolutionOutlined />,
     subNav: [
@@ -42,7 +47,7 @@ import {
   };
   
   const courses: SideNav = {
-    path: [],
+    path: [RoutePath.courses],
     label: 'Course',
     icon: <ReadOutlined />,
     subNav: [
@@ -53,7 +58,7 @@ import {
   };
   
   const teachers: SideNav = {
-    path: [],
+    path: [RoutePath.teachers],
     label: 'Teacher',
     icon: <DeploymentUnitOutlined />,
     subNav: [
@@ -71,13 +76,13 @@ import {
     icon: <DashboardOutlined />,
   };
 
-  const message: SideNav = {
+  const messages: SideNav = {
     path: [RoutePath.message],
     label: 'Message',
     icon: <MessageOutlined/>
   }
   
   export const routes: Map<string, SideNav[]> = new Map([
-    ["manager", [overview, students, teachers, courses, message]],
+    ["manager", [overview, students, teachers, courses, messages]],
   ]);
   

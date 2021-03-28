@@ -36,6 +36,15 @@
   background: #fff;
 }
 
+.site_layout_background {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .search_bar {
   float: right;
 }
@@ -69,4 +78,85 @@
 .tab {
   width: "100%";
   margin-left: 30px;
+}
+
+.MessageContainer {
+  height: 380px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.message_tab {
+  padding: 10px 0px 0 20px;
+  margin-bottom: 0;
+}
+
+.message_pane {
+  position: relative;
+}
+
+.message_pane .ant-list-item {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.message_pane .ant-list-item:hover {
+  background: #1890ff45;
+}
+
+.message_pane .ant-list-item-meta-title {
+  margin-bottom: 0;
+}
+
+.message_pane .ant-list-item-action {
+  margin: 0 0 0 48px;
+}
+
+.message_pane .ant-list-item-meta-avatar {
+  align-self: flex-end;
+}
+
+.message_pane .ant-list-item-meta-description {
+  margin: 5px 0;
+  white-space: normal;
+  display: -webkit-box;
+  max-height: 3em;
+  max-width: 100%;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message_pane .ant-list-item-meta {
+  margin-bottom: 0;
+}
+
+.message_footer {
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 0 0 4px 4px;
+  border: 1px solid #f0f0f0;
+  border-left: none;
+  border-right: none;
+  background: #fff;
+  z-index: 9;
+}
+
+.message_footer.ant-col {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message_footer.ant-col:first-child {
+  box-shadow: 1px 0 0 0 #f0f0f0;
+}
+
+.message_footer button {
+  border: none;
 }

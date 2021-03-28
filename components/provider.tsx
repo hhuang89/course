@@ -7,7 +7,7 @@ interface MessageState {
   message: number;
 }
 type MessageType = "notification" | "message" | "total";
-type Action = "increment" | "reset";
+type Action = "increment" | "reset" | "decrement";
 type MessageAction = {
   type: Action;
   payload?: { type: MessageType; count: number };
@@ -27,6 +27,13 @@ const Reducer = (state: MessageState, action: MessageAction) => {
         [action.payload.type]:
           action.payload.count + state[action.payload.type],
         total: state.total + action.payload.count,
+      };
+    case "decrement":
+      return {
+        ...state,
+        [action.payload.type]:
+          state[action.payload.type] - action.payload.count,
+        total: state.total - action.payload.count,
       };
     case "reset":
       return {

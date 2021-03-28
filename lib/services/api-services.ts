@@ -67,13 +67,14 @@ function post(path, body) {
     });
 }
 
-function put(path, body) {
+function put<T>(path: string, body: object): Promise<any> {
   return axiosInstance
   .put(path, body)
   .then((response) => {
-    return new Promise((resolve) => {
-      resolve(response.data);
-    });
+    return response.data;
+    // return new Promise((resolve) => {
+    //   resolve(response.data);
+    // });
   })
   .catch((err) => {
     return new Promise((_, reject) => {
@@ -97,7 +98,6 @@ function baseapi_delete(path) {
 }
 
 //api service
-//get
 //message
 export function getMessageStatistics(params="") {
   return get("/message/statistics", params);
@@ -106,10 +106,11 @@ export function getMessageStatistics(params="") {
 export function getMessage(params) {
   return get("/message", params);
 }
-//auth
-export function getUserRole(params) {
-  return get("/userRole", params);
+
+export function markAsRead(ids: number[]): Promise<IResponse<boolean>> {
+  return put("/message", {ids: ids, status: 1});
 }
+
 //overview
 export function getOverview(params) {
   return get("/statistics/overview", params);
@@ -144,24 +145,6 @@ export function getStudentById(params) {
   return get(`/students/${params}`, params);
 }
 
-//course
-export function getCourses(params) {
-  return get("/courses", params);
-}
-
-export function getCourseById(params) {
-  return get(`/courses/detail`, params);
-}
-
-//post
-export function postLoginForm(body) {
-  return post("/login", {
-    email: body.username,
-    password: AES.encrypt(body.password, "cms").toString(),
-    role: body.role,
-  });
-}
-
 export function postAddStudent(body) {
   return post("/students", {
     name: body.name,
@@ -171,7 +154,6 @@ export function postAddStudent(body) {
   });
 }
 
-//put
 export function updateStudent (body) {
   return put("/students", {
     id: body.id,
@@ -182,7 +164,24 @@ export function updateStudent (body) {
   })
 }
 
-//delete
 export function deleteStudent(id) {
   return baseapi_delete(`/students/${id}`)
+}
+
+//course
+export function getCourses(params) {
+  return get("/courses", params);
+}
+
+export function getCourseById(params) {
+  return get(`/courses/detail`, params);
+}
+
+//login
+export function postLoginForm(body) {
+  return post("/login", {
+    email: body.username,
+    password: AES.encrypt(body.password, "cms").toString(),
+    role: body.role,
+  });
 }

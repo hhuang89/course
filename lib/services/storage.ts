@@ -9,7 +9,7 @@ export function getToken() {
 
 export function getUserRole() {
     try {
-        return JSON.parse(localStorage.getItem("auth")).role;
+        return JSON.parse(localStorage?.getItem("auth")).role;
     } catch {
         null;
     }

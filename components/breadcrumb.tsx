@@ -2,23 +2,24 @@ import { Breadcrumb, message } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { SideNav, routes } from "../lib/constant/routes";
-import { getDefaultKeys } from "./layout";
-import { getUserRole, IResponse } from "../lib/services/api-services";
+//import { getDefaultKeys } from "./layout";
+import { getMenuConfig } from "./layout";
+import { getUserRole } from "../lib/services/storage";
 import styles from "../styles/Breadcrumb.module.css";
 import { useEffect, useState } from "react";
 
 
 
 const essential = () => {
-  // let Role = "";
-  // const role = getUserRole("").then((res: IResponse) => {
-  //   Role = res.data;
-  //   return Role;
-  // }).catch((err) => message.error(err));
   const userRole = "manager";
-
+  // const [userRole, setUserRole] = useState();
+  // useEffect(() => {
+  //   setUserRole(getUserRole());
+  // }, [])
+  
   const sideNav = routes.get(userRole);
-  const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
+  //const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
+  const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNav);
   const openKey = defaultOpenKeys[0] ? defaultOpenKeys[0].split("_")[0] : "";
   const selectedKey = defaultSelectedKeys[0].split("_")[0];
 
@@ -42,13 +43,13 @@ const isDetailPath = (): boolean => {
 
 const GeneratePath = (data: SideNav[], selectedKey: string) => {
   const { userRole } = essential();
-
+  const string = "/dashboard";
   const Path = data.map((item) => {
     if (item.subNav && item.subNav.length) {
       return GeneratePath(item.subNav, selectedKey).map((item: string) => item);
     } else {
       if (selectedKey === item.label) {
-        const path = ["/dashboard", userRole, item.path].join("/");
+        const path = [string, userRole, item.path].join("/");
         return path;
       } else {
         return null;
