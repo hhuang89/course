@@ -42,7 +42,7 @@ import {
     label: 'Student',
     icon: <SolutionOutlined />,
     subNav: [
-      { path: [RoutePath.students], label: 'Student List', icon: <TeamOutlined /> },
+      { path: [''], label: 'Student List', icon: <TeamOutlined /> },
     ],
   };
   
@@ -51,7 +51,7 @@ import {
     label: 'Course',
     icon: <ReadOutlined />,
     subNav: [
-      { path: [RoutePath.courses], label: 'All Courses', icon: <ProjectOutlined /> },
+      { path: [''], label: 'All Courses', icon: <ProjectOutlined /> },
       { path: [RoutePath.addCourse], label: 'Add Course', icon: <FileAddOutlined /> },
       { path: [RoutePath.editCourse], label: 'Edit Course', icon: <EditOutlined /> },
     ],
@@ -63,7 +63,7 @@ import {
     icon: <DeploymentUnitOutlined />,
     subNav: [
       {
-        path: [RoutePath.teachers],
+        path: [''],
         label: 'Teacher List',
         icon: <TeamOutlined />,
       },
