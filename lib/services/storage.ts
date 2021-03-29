@@ -1,24 +1,37 @@
+import { useState } from "react";
+
 export function getToken() {
+  if (typeof localStorage !== "undefined") {
     try {
-        return JSON.parse(localStorage.getItem("auth")).token;
+      return JSON.parse(localStorage.getItem("auth")).token;
     } catch {
-        null;
+      null;
     }
-    
+  }
 }
 
 export function getUserRole() {
-    try {
-        return JSON.parse(localStorage?.getItem("auth")).role;
-    } catch {
-        null;
-    }
+  if (typeof localStorage !== "undefined") {
+    return JSON.parse(localStorage?.getItem("auth")).role;
+  }
 }
 
 export function getUserId() {
+  if (typeof localStorage !== "undefined") {
     try {
-        return JSON.parse(localStorage.getItem("auth")).userId;
+      return JSON.parse(localStorage.getItem("auth")).userId;
     } catch {
-        null;
+      null;
     }
+  }
 }
+
+// export function getUserInfo() {
+//   if (typeof localStorage !== "undefined") {
+//     return JSON.parse(localStorage?.getItem("auth"));
+//   }
+// }
+
+// export function getUser() {
+//   return getUserInfo()?.role;
+// }

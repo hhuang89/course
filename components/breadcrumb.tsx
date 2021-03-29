@@ -5,18 +5,25 @@ import { SideNav, routes } from "../lib/constant/routes";
 //import { getDefaultKeys } from "./layout";
 import { getMenuConfig } from "./layout";
 import { getUserRole } from "../lib/services/storage";
+// import { useUserRole } from "../lib/services/login-state";
 import styles from "../styles/Breadcrumb.module.css";
 import { useEffect, useState } from "react";
 
+// const userRoleState = () => {
+//   const [userRole, setUserRole] = useState('');
+//   useEffect(() => {
+//     const user = JSON.parse(localStorage?.getItem("auth")).role;
+//     if (!!user) {
+//       setUserRole(user);
+//     }
+    
+//   });
 
+//   return userRole;
+// }
 
-const essential = () => {
-  const userRole = "manager";
-  // const [userRole, setUserRole] = useState();
-  // useEffect(() => {
-  //   setUserRole(getUserRole());
-  // }, [])
-  
+const essential = (userRole: string) => {
+  //const userRole = userRoleState();
   const sideNav = routes.get(userRole);
   //const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
   const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNav);
@@ -24,7 +31,7 @@ const essential = () => {
   const selectedKey = defaultSelectedKeys[0].split("_")[0];
 
   return {
-    userRole,
+    //userRole,
     sideNav,
     openKey,
     selectedKey,
@@ -41,12 +48,12 @@ const isDetailPath = (): boolean => {
   return signal;
 };
 
-const GeneratePath = (data: SideNav[], selectedKey: string) => {
-  const { userRole } = essential();
+const generatePath = (data: SideNav[], selectedKey: string, userRole: string) => {
+  //const { userRole } = essential();
   const string = "/dashboard";
   const Path = data.map((item) => {
     if (item.subNav && item.subNav.length) {
-      return GeneratePath(item.subNav, selectedKey).map((item: string) => item);
+      return generatePath(item.subNav, selectedKey, userRole).map((item: string) => item);
     } else {
       if (selectedKey === item.label) {
         const path = [string, userRole, item.path].join("/");
@@ -60,9 +67,9 @@ const GeneratePath = (data: SideNav[], selectedKey: string) => {
   return Path;
 };
 
-const getListLink = () => {
-  const { sideNav, selectedKey } = essential();
-  const array = GeneratePath(sideNav, selectedKey);
+const getListLink = (useRole: string) => {
+  const { sideNav, selectedKey } = essential(useRole);
+  const array = generatePath(sideNav, selectedKey, useRole);
   let link = "";
   array.forEach((element: string[]) => {
     if (element) {
@@ -74,39 +81,47 @@ const getListLink = () => {
   return link;
 };
 
-const detailPath = (): string[] => {
-  const { openKey, selectedKey } = essential();
+const detailPath = (userRole: string): string[] => {
+  const { openKey, selectedKey } = essential(userRole);
   const detail = isDetailPath();
 
-  if (detail) {
-    const breadcrumbPath = [openKey, selectedKey, "Detail"];
-    return breadcrumbPath;
-  } else {
-    const breadcrumbPath = [openKey, selectedKey];
-    return breadcrumbPath;
-  }
+  return detail? [openKey, selectedKey, "Detail"] : [openKey, selectedKey];
+
+  // if (detail) {
+  //   const breadcrumbPath = [openKey, selectedKey, "Detail"];
+  //   return breadcrumbPath;
+  // } else {
+  //   const breadcrumbPath = [openKey, selectedKey];
+  //   return breadcrumbPath;
+  // }
 };
 
+const useUserRole = () => {
+  const [userRole, setUserRole] = useState('');
+  useEffect(() => {
+    const user = getUserRole();
+    setUserRole(user);
+  });
+
+  return userRole;
+}
+
 export default function BreadCrumb() {
-  // const [userRole, setUserRole] = useState(null);
+  // const [userRole, setUserRole] = useState('');
   // useEffect(() => {
-  //   getUserRole("")
-  //     .then((res: IResponse) => {
-  //       const role = res.data;
-  //       setUserRole(role);
-  //     })
-  //     .catch((err) => message.error(err));
+  //   const user = getUserRole();
+  //   setUserRole(user);
   // });
-  const {userRole} = essential();
-  const breadcrumbPath = detailPath();
-  const link = getListLink();
+  const userRole = useUserRole();
+  const breadcrumbPath = detailPath("manager");
+  const link = getListLink("manager");
   const breadcrumbPathLength = breadcrumbPath.length;
 
-  //check if it is detail page
-  //if it is not
-  //CMS(link)/SideBarName/Open key
-  //if it is
-  //CMS(link)/SideBarName(with link)/Open key
+  /*check if it is detail page
+  if it is not
+  CMS(link)/SideBarName/Open key
+  if it is
+  CMS(link)/SideBarName(with link)/Open key*/
 
   return (
     <Breadcrumb className={styles.breadcrumb}>
