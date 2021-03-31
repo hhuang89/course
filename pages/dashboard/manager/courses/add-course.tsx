@@ -2,13 +2,13 @@ import { Button, Result, Steps, message } from "antd";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import DetailLayout from "../../../../components/layout";
-
+import AddCourseForm from "../../../../components/course/add-course-form";
 const { Step } = Steps;
 
 const steps = [
   {
     title: "Course Detail",
-    content: "First-content",
+    content: <AddCourseForm />,
   },
   {
     title: "Course Schedule",

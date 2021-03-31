@@ -27,9 +27,8 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import styles from "../styles/Students.module.css";
 import axios from "axios";
 import { SideNav, routes } from "../lib/constant/routes";
-import { getUserRole } from "../lib/services/storage";
 import BreadCrumb from "./breadcrumb";
-import { generateKey, getActiveKey } from '../lib/util';
+//import { generateKey, getActiveKey } from '../lib/util';
 import {
   getMessageStatistics,
   baseURL,
@@ -45,138 +44,135 @@ import {
 import InfiniteScroll from "react-infinite-scroll-component";
 import { MessageConsumer } from "./provider";
 import { Pointer } from "highcharts";
+import { getUserRole } from "../lib/services/storage";
 const { Header, Sider, Content } = Layout;
+import styled from "styled-components";
 
-// export const generateKey = (data: SideNav, index: number): string => {
-//   return `${data.label}_${index}`;
-// };
+const TabNavContainer = styled(Tabs)`
+  margin-bottom: 0;
+  padding: 10px 20px 0 20px;
+  .ant-tabs-nav-list {
+    width: 100%;
+    justify-content: space-around;
+  }
+`;
 
-// export const generatePath = (data: SideNav): string => {
-//   return data.path[0];
-// };
+const Footer = styled(Row)`
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 0 0 4px 4px;
+  border: 1px solid #f0f0f0;
+  border-left: none;
+  border-right: none;
+  background: #fff;
+  z-index: 9;
+  .ant-col {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:first-child {
+      box-shadow: 1px 0 0 0 #f0f0f0;
+    }
+  }
+  button {
+    border: none;
+  }
+`;
 
-// export const getActivePath = () => {
-//   const router = useRouter();
-//   //can also achieved by using filter
-//   const activePath = router.pathname.split("/").reduce((acc, cur) => {
-//     if (cur === "[id]") {
-//       // be really careful here, only detail page has [id]
-//       return acc;
-//     } else {
-//       return acc + (acc === "/" ? "" : "/") + cur;
-//     }
-//   }, "");
-
-//   return activePath;
-// };
-
-// //fn generate path or key (input type) => output type
-// export const curryingGeneratePath = (
-//   fn: (data: SideNav, index: number) => string
-// ) =>
-//   function GeneratePath(data: SideNav[], parent = ""): string[][] {
-//     const Path = data.map((item, index) => {
-//       let path = fn(item, index);
-//       if (item.subNav && !!item.subNav.length) {
-//         return GeneratePath(item.subNav, path).map((item: string[]) => item[0]);
-//       } else {
-//         return [path];
-//       }
-//     });
-//     return Path;
-//   };
-
-// export const curryingGenerateKey = (
-//   fn: (data: SideNav, index: number) => string
-// ) =>
-//   function GenerateKey(data: SideNav[], parent = ""): string[][] {
-//     const Key = data.map((item, index) => {
-//       let key = fn(item, index);
-//       if (parent) {
-//         key = [parent, key].join("/");
-//       }
-
-//       if (item.subNav && !!item.subNav.length) {
-//         return GenerateKey(item.subNav, key).map((item: string[]) =>
-//           item.join("/")
-//         );
-//       } else {
-//         return [key];
-//       }
-//     });
-//     return Key;
-//   };
-
-// export const getDefaultKeys = (data: SideNav[]) => {
-//   const activePath = getActivePath(); // /dashboard/manager/page
-//   const userType = "manager";
-//   const getPath = curryingGeneratePath(generatePath);
-//   const path = getPath(data)
-//     .reduce((acc, cur) => [...acc, ...cur], []) //convert [][] to []
-//     .map((item) =>
-//       ["/dashboard", userType, item].filter((item) => !!item).join("/")
-//     );
-//   const index = path.findIndex((item) => {
-//     return item === activePath;
-//   });
-//   const getKey = curryingGenerateKey(generateKey);
-//   const key = getKey(data).reduce((acc, cur) => [...acc, ...cur], []);
-
-//   if (key[index]) {
-//     const defaultSelectedKeys = [key[index].split("/").pop()];
-//     const defaultOpenKeys = key[index].split("/").slice(0, -1);
-//     return { defaultSelectedKeys, defaultOpenKeys };
-//   }
-// };
-
-// function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
-//   const userType = getUserRole();
-//   //const userType = "manager";
-
-//   return data.map((item, index) => {
-//     const key = generateKey(item, index);
-
-//     if (item.subNav && !!item.subNav.length) {
-//       return (
-//         <Menu.SubMenu key={key} title={item.label} icon={item.icon}>
-//           {renderMenuItems(item.subNav, item.path.join("/"))}
-//         </Menu.SubMenu>
-//       );
-//     } else {
-//       return (
-//         <Menu.Item key={key} title={item.label} icon={item.icon}>
-//           {!!item.path.length ||
-//           item.label.toLocaleLowerCase() === "overview" ||
-//           item.label.toLocaleLowerCase() === "message" ? (
-//             <Link
-//               href={["/dashboard", userType, parent, ...item.path]
-//                 .filter((item) => !!item)
-//                 .join("/")}
-//               replace
-//             >
-//               {item.label}
-//             </Link>
-//           ) : (
-//             item.label
-//           )}
-//         </Menu.Item>
-//       );
-//     }
-//   });
-// }
-
-export const getMenuConfig = (
-  data: SideNav[]
-): { defaultSelectedKeys: string[]; defaultOpenKeys: string[] } => {
-  const key = getActiveKey(data);
-  const defaultSelectedKeys = [key.split('/').pop()];
-  const defaultOpenKeys = key.split('/').slice(0, -1);
-
-  return { defaultSelectedKeys, defaultOpenKeys };
+export const generateKey = (data: SideNav, index: number): string => {
+  return `${data.label}_${index}`;
 };
 
-function renderMenuItems(data: SideNav[], parent = ''): JSX.Element[] {
-  const userRole = "manager";
+export const generatePath = (data: SideNav): string => {
+  return data.path[0];
+};
+
+export const getActivePath = () => {
+  const router = useRouter();
+  //can also achieved by using filter
+  const activePath = router.pathname.split("/").reduce((acc, cur) => {
+    if (cur === "[id]") {
+      // be really careful here, only detail page has [id]
+      return acc;
+    } else {
+      return acc + (acc === "/" ? "" : "/") + cur;
+    }
+  }, "");
+
+  return activePath;
+};
+
+//fn generate path or key (input type) => output type
+export const curryingGeneratePath = (
+  fn: (data: SideNav, index: number) => string
+) =>
+  function GeneratePath(data: SideNav[], parent = ""): string[][] {
+    const Path = data.map((item, index) => {
+      let path = fn(item, index);
+      if (item.subNav && !!item.subNav.length) {
+        return GeneratePath(item.subNav, path).map((item: string[]) => item[0]);
+      } else {
+        return [path];
+      }
+    });
+    return Path;
+  };
+
+export const curryingGenerateKey = (
+  fn: (data: SideNav, index: number) => string
+) =>
+  function GenerateKey(data: SideNav[], parent = ""): string[][] {
+    const Key = data.map((item, index) => {
+      let key = fn(item, index);
+      if (parent) {
+        key = [parent, key].join("/");
+      }
+
+      if (item.subNav && !!item.subNav.length) {
+        return GenerateKey(item.subNav, key).map((item: string[]) =>
+          item.join("/")
+        );
+      } else {
+        return [key];
+      }
+    });
+    return Key;
+  };
+
+export const getDefaultKeys = (data: SideNav[]) => {
+  const activePath = getActivePath(); // /dashboard/manager/page
+  const userType = getUserRole();
+  const getPath = curryingGeneratePath(generatePath);
+  const path = getPath(data)
+    .reduce((acc, cur) => [...acc, ...cur], []) //convert [][] to []
+    .map((item) =>
+      ["/dashboard", userType, item].filter((item) => !!item).join("/")
+    );
+  const index = path.findIndex((item) => {
+    return item === activePath;
+  });
+  const getKey = curryingGenerateKey(generateKey);
+  const key = getKey(data).reduce((acc, cur) => [...acc, ...cur], []);
+
+  //if (key[index]) {
+    const defaultSelectedKeys = [key[index].split("/").pop()];
+    const defaultOpenKeys = key[index].split("/").slice(0, -1);
+
+    return { defaultSelectedKeys, defaultOpenKeys };
+  //}
+
+  // const defaultSelectedKeys = '';
+  //   const defaultOpenKeys = 'Overview_0';
+  //   return { defaultSelectedKeys, defaultOpenKeys };
+};
+
+function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
+  //const userType = getUserRole();
+  const userType = "manager";
 
   return data.map((item, index) => {
     const key = generateKey(item, index);
@@ -184,18 +180,19 @@ function renderMenuItems(data: SideNav[], parent = ''): JSX.Element[] {
     if (item.subNav && !!item.subNav.length) {
       return (
         <Menu.SubMenu key={key} title={item.label} icon={item.icon}>
-          {renderMenuItems(item.subNav, item.path.join('/'))}
+          {renderMenuItems(item.subNav, item.path.join("/"))}
         </Menu.SubMenu>
       );
     } else {
-      
-      return item.hide ? null : (
+      return (
         <Menu.Item key={key} title={item.label} icon={item.icon}>
-          {!!item.path.length || item.label.toLocaleLowerCase() === 'overview' ? (
+          {!!item.path.length ||
+          item.label.toLocaleLowerCase() === "overview" ||
+          item.label.toLocaleLowerCase() === "message" ? (
             <Link
-              href={['/dashboard', userRole, parent, ...item.path]
+              href={["/dashboard", userType, parent, ...item.path]
                 .filter((item) => !!item)
-                .join('/')}
+                .join("/")}
               replace
             >
               {item.label}
@@ -208,6 +205,50 @@ function renderMenuItems(data: SideNav[], parent = ''): JSX.Element[] {
     }
   });
 }
+
+// export const getMenuConfig = (
+//   data: SideNav[]
+// ): { defaultSelectedKeys: string[]; defaultOpenKeys: string[] } => {
+//   const key = getActiveKey(data);
+//   const defaultSelectedKeys = [key.split('/').pop()];
+//   const defaultOpenKeys = key.split('/').slice(0, -1);
+
+//   return { defaultSelectedKeys, defaultOpenKeys };
+// };
+
+// function renderMenuItems(data: SideNav[], parent = ''): JSX.Element[] {
+//   const userRole = getUserRole();
+
+//   return data.map((item, index) => {
+//     const key = generateKey(item, index);
+
+//     if (item.subNav && !!item.subNav.length) {
+//       return (
+//         <Menu.SubMenu key={key} title={item.label} icon={item.icon}>
+//           {renderMenuItems(item.subNav, item.path.join('/'))}
+//         </Menu.SubMenu>
+//       );
+//     } else {
+      
+//       return item.hide ? null : (
+//         <Menu.Item key={key} title={item.label} icon={item.icon}>
+//           {!!item.path.length || item.label.toLocaleLowerCase() === 'overview' ? (
+//             <Link
+//               href={['/dashboard', userRole, parent, ...item.path]
+//                 .filter((item) => !!item)
+//                 .join('/')}
+//               replace
+//             >
+//               {item.label}
+//             </Link>
+//           ) : (
+//             item.label
+//           )}
+//         </Menu.Item>
+//       );
+//     }
+//   });
+// }
 
 interface Params {
   limit: number;
@@ -417,7 +458,7 @@ export const MessagePanel = () => {
         trigger={["click"]}
         overlay={
           <>
-            <Tabs
+            <TabNavContainer
               defaultActiveKey="notification"
               className={styles.message_tab}
               onChange={(key: MessageType) => {
@@ -444,8 +485,8 @@ export const MessagePanel = () => {
                   </div>
                 </Tabs.TabPane>
               ))}
-            </Tabs>
-            <Row
+            </TabNavContainer>
+            <Footer
               justify="space-between"
               align="middle"
               className={styles.message_footer}
@@ -462,7 +503,7 @@ export const MessagePanel = () => {
               <Col span={12}>
                 <Button>View history</Button>
               </Col>
-            </Row>
+            </Footer>
           </>
         }
       >
@@ -474,15 +515,16 @@ export const MessagePanel = () => {
 
 export default function DetailLayout(props: React.PropsWithChildren<any>) {
   const { children } = props;
-  // const SideNav = routes.get(getUserRole())
 
-  // const sideNav = routes.get("manager");
-  // const menuItem = renderMenuItems(sideNav);
-  // const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
+  const sideNav = routes.get(getUserRole());
+  const menuItems = renderMenuItems(sideNav);
+  const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
 
-  const sideNave = routes.get("manager");
-  const menuItems = renderMenuItems(sideNave);
-  const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNave);
+
+  // const sideNave = routes.get("manager");
+  // const menuItems = renderMenuItems(sideNave);
+  // const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNave);
+  
   const [collapsed, setCollapsed] = useState(false);
 
   const toggle = () => {
@@ -518,8 +560,8 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
         <Menu
           theme="dark"
           mode="inline"
-          defaultOpenKeys={defaultOpenKeys}
-          defaultSelectedKeys={defaultSelectedKeys}
+          // defaultOpenKeys={defaultOpenKeys}
+          // defaultSelectedKeys={defaultSelectedKeys}
         >
           {menuItems}
         </Menu>

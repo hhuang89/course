@@ -2,7 +2,7 @@ import { message } from "antd";
 import axios, { AxiosError } from "axios";
 import { AES } from "crypto-js";
 import { MessageStatistics } from "../model/message";
-import { getUserId } from "./storage"
+import { getUserId } from "./storage";
 
 export interface IResponse<T = any> {
   code: number;
@@ -175,6 +175,14 @@ export function getCourses(params) {
 
 export function getCourseById(params) {
   return get(`/courses/detail`, params);
+}
+
+export function getCourseCode(): Promise<IResponse> {
+  return get('/courses/code');
+}
+
+export function getType(): Promise<IResponse> {
+  return get('/courses/type');
 }
 
 //login

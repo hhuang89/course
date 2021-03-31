@@ -2,54 +2,37 @@ import { Breadcrumb, message } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { SideNav, routes } from "../lib/constant/routes";
-//import { getDefaultKeys } from "./layout";
-import { getMenuConfig } from "./layout";
+import { getDefaultKeys } from "./layout";
+//import { getMenuConfig } from "./layout";
 import { getUserRole } from "../lib/services/storage";
-// import { useUserRole } from "../lib/services/login-state";
 import styles from "../styles/Breadcrumb.module.css";
 import { useEffect, useState } from "react";
 
-// const userRoleState = () => {
-//   const [userRole, setUserRole] = useState('');
-//   useEffect(() => {
-//     const user = JSON.parse(localStorage?.getItem("auth")).role;
-//     if (!!user) {
-//       setUserRole(user);
-//     }
-    
-//   });
-
-//   return userRole;
-// }
 
 const essential = (userRole: string) => {
-  //const userRole = userRoleState();
   const sideNav = routes.get(userRole);
-  //const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
-  const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNav);
+  const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
+  //const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNav);
   const openKey = defaultOpenKeys[0] ? defaultOpenKeys[0].split("_")[0] : "";
   const selectedKey = defaultSelectedKeys[0].split("_")[0];
 
   return {
-    //userRole,
     sideNav,
     openKey,
     selectedKey,
   };
 };
 
-const isDetailPath = (): boolean => {
-  const router = useRouter();
-  let signal = false;
-  router.pathname.split("/").forEach((item) => {
-    signal = item === "[id]";
-  });
+const isDetailPath = (path: string): boolean => {
+  const paths = path.split('/');
+  const length = paths.length;
+  const last = paths[length - 1];
+  const reg = /\[.*\]/;
 
-  return signal;
+  return reg.test(last);
 };
 
 const generatePath = (data: SideNav[], selectedKey: string, userRole: string) => {
-  //const { userRole } = essential();
   const string = "/dashboard";
   const Path = data.map((item) => {
     if (item.subNav && item.subNav.length) {
@@ -68,53 +51,41 @@ const generatePath = (data: SideNav[], selectedKey: string, userRole: string) =>
 };
 
 const getListLink = (useRole: string) => {
-  const { sideNav, selectedKey } = essential(useRole);
-  const array = generatePath(sideNav, selectedKey, useRole);
-  let link = "";
-  array.forEach((element: string[]) => {
-    if (element) {
-      if (element[0]) {
-        link = element[0];
-      }
-    }
-  });
+  // const { sideNav, selectedKey } = essential(useRole);
+  // const array = generatePath(sideNav, selectedKey, useRole);
+  // console.log(array);
+
+  // let link = "";
+  // array.forEach((element: string[]) => {
+  //   if (element) {
+  //     if (element[0]) {
+  //       link = element[0];
+  //     }
+  //   }
+  // });
+   const router = useRouter();
+   const link = router.pathname.split('/').slice(0, router.pathname.split('/').length - 1).join('/');
   return link;
 };
 
 const detailPath = (userRole: string): string[] => {
+  const router = useRouter();
+  const path = router.pathname;
   const { openKey, selectedKey } = essential(userRole);
-  const detail = isDetailPath();
+  const detail = isDetailPath(path);
 
   return detail? [openKey, selectedKey, "Detail"] : [openKey, selectedKey];
-
-  // if (detail) {
-  //   const breadcrumbPath = [openKey, selectedKey, "Detail"];
-  //   return breadcrumbPath;
-  // } else {
-  //   const breadcrumbPath = [openKey, selectedKey];
-  //   return breadcrumbPath;
-  // }
 };
 
-const useUserRole = () => {
-  const [userRole, setUserRole] = useState('');
-  useEffect(() => {
-    const user = getUserRole();
-    setUserRole(user);
-  });
-
-  return userRole;
-}
-
 export default function BreadCrumb() {
-  // const [userRole, setUserRole] = useState('');
-  // useEffect(() => {
-  //   const user = getUserRole();
-  //   setUserRole(user);
-  // });
-  const userRole = useUserRole();
-  const breadcrumbPath = detailPath("manager");
-  const link = getListLink("manager");
+  const router = useRouter();
+  const paths = router.pathname.split('/').slice(1);
+  const root = '/' + paths.slice(0, 2).join('/');
+
+  const userRole = getUserRole();
+  const breadcrumbPath = detailPath(userRole);
+  const link = getListLink(userRole);
+
   const breadcrumbPathLength = breadcrumbPath.length;
 
   /*check if it is detail page
@@ -126,7 +97,7 @@ export default function BreadCrumb() {
   return (
     <Breadcrumb className={styles.breadcrumb}>
       <Breadcrumb.Item>
-        <Link href="/">{`CMS ${userRole.toUpperCase()} SYSTEM`}</Link>
+        <Link href={root}>{`CMS ${userRole.toUpperCase()} SYSTEM`}</Link>
       </Breadcrumb.Item>
       {breadcrumbPath.map((item, index) => {
         if (breadcrumbPathLength === 2) {

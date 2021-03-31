@@ -26,24 +26,11 @@ export default function Login() {
   const onFinish = async (values: LoginFormValues) => {
     await postLoginForm(values).then((res: IResponse) => {
       localStorage.setItem("auth", JSON.stringify(res.data));
-      //localStorage.setItem("token", JSON.stringify(res.data.token));
+
       if (res.code >= 200 && res.code < 300) {
         router.push(`/dashboard/${res.data.role}`);
       }
     });
-    // await axios
-    //   .post("https://cms.chtoma.com/api/login", {
-    //     email: values.username,
-    //     password: AES.encrypt(values.password, "cms").toString(),
-    //     role: values.role,
-    //   })
-    //   .then((result) => {
-    //     localStorage.setItem("token", JSON.stringify(result.data.data.token));
-    //     if (result.data.code >= 200 && result.data.code < 300) {
-    //       router.push(`/dashboard/${result.data.data.role}`);
-    //     }
-    //   })
-    //   .catch(() => message.error("invalid username or password"));
   };
 
   const onFinishFailed = (errorInfo: any) => {

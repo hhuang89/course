@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRouter } from "next/router";
 
 export function getToken() {
   if (typeof localStorage !== "undefined") {
@@ -11,9 +11,8 @@ export function getToken() {
 }
 
 export function getUserRole() {
-  if (typeof localStorage !== "undefined") {
-    return JSON.parse(localStorage?.getItem("auth")).role;
-  }
+    const router = useRouter();
+    return router.pathname.split('/')[2];
 }
 
 export function getUserId() {
@@ -25,13 +24,3 @@ export function getUserId() {
     }
   }
 }
-
-// export function getUserInfo() {
-//   if (typeof localStorage !== "undefined") {
-//     return JSON.parse(localStorage?.getItem("auth"));
-//   }
-// }
-
-// export function getUser() {
-//   return getUserInfo()?.role;
-// }

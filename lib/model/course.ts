@@ -75,3 +75,8 @@ export interface Teacher {
   phone: string;
   profileId: number;
 }
+
+export interface courseType {
+  id: number;
+  name: string;
+}
