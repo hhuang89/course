@@ -1,3 +1,5 @@
+import { Teacher } from "./teacher";
+
 export interface GetCourseByIdResponse {
   data: Course;
   code: number;
@@ -21,7 +23,7 @@ export interface Course {
   status: number;
   scheduleId: number;
   teacherId: number;
-  teacher: Teacher;
+  teacher: Omit<Teacher, 'skills'>;
   schedule: Schedule;
   type: CourseType[];
   sales: Sales;
@@ -64,17 +66,17 @@ export interface Chapter {
   content: string;
 }
 
-export interface Teacher {
-  createdAt: string;
-  updatedAt: string;
-  id: number;
-  country: string;
-  courseAmount: number;
-  email: string;
-  name: string;
-  phone: string;
-  profileId: number;
-}
+// export interface Teacher {
+//   createdAt: string;
+//   updatedAt: string;
+//   id: number;
+//   country: string;
+//   courseAmount: number;
+//   email: string;
+//   name: string;
+//   phone: string;
+//   profileId: number;
+// }
 
 export interface courseType {
   id: number;

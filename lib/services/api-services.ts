@@ -3,12 +3,8 @@ import axios, { AxiosError } from "axios";
 import { AES } from "crypto-js";
 import { MessageStatistics } from "../model/message";
 import { getUserId } from "./storage";
-
-export interface IResponse<T = any> {
-  code: number;
-  msg: string;
-  data?: T;
-}
+import { IResponse } from "../model";
+import { SearchTeacherResponse, TeacherRequest } from "../model";
 
 export const baseURL = "https://cms.chtoma.com/api/";
 const axiosInstance = axios.create({
@@ -38,14 +34,11 @@ function errorHandler(err: AxiosError<IResponse>): IResponse {
 }
 
 //Base Api Service
-async function get(path, params = "") {
+async function get(path, params:any = "") {
   return axiosInstance
     .get(path, { params: params})
     .then((response) => {
       return response.data;
-      // return new Promise((resolve) => {
-      //   resolve(response.data);
-      // });
     })
     .catch((err) => {
       return　new Promise((_, reject) => {
@@ -72,9 +65,6 @@ function put<T>(path: string, body: object): Promise<any> {
   .put(path, body)
   .then((response) => {
     return response.data;
-    // return new Promise((resolve) => {
-    //   resolve(response.data);
-    // });
   })
   .catch((err) => {
     return new Promise((_, reject) => {
@@ -192,4 +182,9 @@ export function postLoginForm(body) {
     password: AES.encrypt(body.password, "cms").toString(),
     role: body.role,
   });
+}
+
+//teacher
+export function searchTeacherByName(req: TeacherRequest): Promise<IResponse<SearchTeacherResponse>> {
+  return get('/teachers', req);
 }

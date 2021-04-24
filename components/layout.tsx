@@ -110,23 +110,28 @@ export const getActivePath = () => {
 export const curryingGeneratePath = (
   fn: (data: SideNav, index: number) => string
 ) =>
-  function GeneratePath(data: SideNav[], parent = ""): string[][] {
-    const Path = data.map((item, index) => {
+  function generatePath(data: SideNav[], parent = ""): string[][] {
+    const paths = data.map((item, index) => {
       let path = fn(item, index);
+
+      if (parent) {
+        path = [parent, path].join("/");
+      }
+
       if (item.subNav && !!item.subNav.length) {
-        return GeneratePath(item.subNav, path).map((item: string[]) => item[0]);
+        return generatePath(item.subNav, path).map((item) => item.join("/"));
       } else {
         return [path];
       }
     });
-    return Path;
+    return paths;
   };
 
 export const curryingGenerateKey = (
   fn: (data: SideNav, index: number) => string
 ) =>
   function GenerateKey(data: SideNav[], parent = ""): string[][] {
-    const Key = data.map((item, index) => {
+    const keys = data.map((item, index) => {
       let key = fn(item, index);
       if (parent) {
         key = [parent, key].join("/");
@@ -140,7 +145,7 @@ export const curryingGenerateKey = (
         return [key];
       }
     });
-    return Key;
+    return keys;
   };
 
 export const getDefaultKeys = (data: SideNav[]) => {
@@ -149,30 +154,28 @@ export const getDefaultKeys = (data: SideNav[]) => {
   const getPath = curryingGeneratePath(generatePath);
   const path = getPath(data)
     .reduce((acc, cur) => [...acc, ...cur], []) //convert [][] to []
-    .map((item) =>
-      ["/dashboard", userType, item].filter((item) => !!item).join("/")
-    );
+    .map((item) => {
+      const str = ["/dashboard", userType, item]
+        .filter((item) => !!item)
+        .join("/");
+      return str.endsWith("/") ? str.slice(0, -1) : str;
+    });
+
   const index = path.findIndex((item) => {
     return item === activePath;
   });
   const getKey = curryingGenerateKey(generateKey);
   const key = getKey(data).reduce((acc, cur) => [...acc, ...cur], []);
 
-  //if (key[index]) {
-    const defaultSelectedKeys = [key[index].split("/").pop()];
-    const defaultOpenKeys = key[index].split("/").slice(0, -1);
+  const defaultSelectedKeys = [key[index].split("/").pop()];
+  const defaultOpenKeys = key[index].split("/").slice(0, -1);
 
-    return { defaultSelectedKeys, defaultOpenKeys };
-  //}
-
-  // const defaultSelectedKeys = '';
-  //   const defaultOpenKeys = 'Overview_0';
-  //   return { defaultSelectedKeys, defaultOpenKeys };
+  return { defaultSelectedKeys, defaultOpenKeys };
 };
 
 function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
-  //const userType = getUserRole();
-  const userType = "manager";
+  const userType = getUserRole();
+  //const userType = "manager";
 
   return data.map((item, index) => {
     const key = generateKey(item, index);
@@ -229,7 +232,7 @@ function renderMenuItems(data: SideNav[], parent = ""): JSX.Element[] {
 //         </Menu.SubMenu>
 //       );
 //     } else {
-      
+
 //       return item.hide ? null : (
 //         <Menu.Item key={key} title={item.label} icon={item.icon}>
 //           {!!item.path.length || item.label.toLocaleLowerCase() === 'overview' ? (
@@ -520,11 +523,10 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
   const menuItems = renderMenuItems(sideNav);
   const { defaultOpenKeys, defaultSelectedKeys } = getDefaultKeys(sideNav);
 
-
   // const sideNave = routes.get("manager");
   // const menuItems = renderMenuItems(sideNave);
   // const { defaultOpenKeys, defaultSelectedKeys } = getMenuConfig(sideNave);
-  
+
   const [collapsed, setCollapsed] = useState(false);
 
   const toggle = () => {
@@ -560,8 +562,8 @@ export default function DetailLayout(props: React.PropsWithChildren<any>) {
         <Menu
           theme="dark"
           mode="inline"
-          // defaultOpenKeys={defaultOpenKeys}
-          // defaultSelectedKeys={defaultSelectedKeys}
+          defaultOpenKeys={defaultOpenKeys}
+          defaultSelectedKeys={defaultSelectedKeys}
         >
           {menuItems}
         </Menu>
