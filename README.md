@@ -18,14 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You will see the login page, if login sucessfully, tokens will store in your localStorage.
 
 ## Tech Stack
-⋅⋅* TypeScript
+* TypeScript
 
-⋅⋅* React Hooks
+* React Hooks
 
-⋅⋅* Also use other dependencies. e.g. [High Charts](https://api.highcharts.com/highcharts/) for data visualisation.
+* Also use other dependencies. e.g. [High Charts](https://api.highcharts.com/highcharts/) for data visualisation.
 
 ### Addtional documentation
-⋅⋅* [Backend API documentation](https://cms.chtoma.com/swagger/#/)
+* [Backend API documentation](https://cms.chtoma.com/swagger/#/)
 
 ### UI Framework
 Basically use [Ant Design](https://ant.design/), but also change some components style by using [styled-components](https://styled-components.com/) to achieve the design requirements.
