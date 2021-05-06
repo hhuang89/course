@@ -14,7 +14,7 @@ Then, run the following command
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/login](http://localhost:3000/login) with your browser to see the result.
 You will see the login page, if login sucessfully, tokens will store in your localStorage.
 
 ## Tech Stack
